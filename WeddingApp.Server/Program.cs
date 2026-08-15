@@ -2,7 +2,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowedOrigins", policy =>
+    {
+        policy
+              .WithOrigins("https://www.thegernales.com", "https://thegernales.com")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+});
 
 builder.Services.AddHttpClient<IGDriveRepository, GDriveRepository>();
 
@@ -18,6 +28,8 @@ if (app.Environment.IsDevelopment())
 {
     app.UseWebAssemblyDebugging();
 }
+
+app.UseCors("AllowedOrigins");
 
 app.UseHttpsRedirection();
 
