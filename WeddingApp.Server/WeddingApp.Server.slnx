@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="../WeddingApp.Client/WeddingApp.Client.csproj" />
+  <Project Path="../WeddingApp.Shared/WeddingApp.Shared.csproj" />
+  <Project Path="WeddingApp.Server.csproj" />
+</Solution>

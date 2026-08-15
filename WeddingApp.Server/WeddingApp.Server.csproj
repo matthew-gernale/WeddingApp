@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WeddingApp.Shared\WeddingApp.Shared.csproj" />
+  </ItemGroup>
+
+
+	<ItemGroup>
+		<Using Include="System.Net" />
+		<Using Include="System.Text.Json" />
+		<Using Include="System.Net.Http.Headers" />
+		<Using Include="Microsoft.AspNetCore.Mvc" />
+		
+		<Using Include="WeddingApp.Server.Repository.GDriveRepo" />
+		<Using Include="WeddingApp.Server.Util" />
+
+		<Using Include="WeddingApp.Shared.DTO.Response" />
+		<Using Include="WeddingApp.Shared.DTO.GFileDTOs" />
+		<Using Include="WeddingApp.Shared.DTO.GDriveDTOs" />
+	</ItemGroup>
+</Project>

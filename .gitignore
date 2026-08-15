@@ -7,6 +7,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/Dotnet.gitignore
 
+# Visual Studio
+.vs/
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
@@ -40,7 +43,7 @@ ScaffoldingReadMe.txt
 .env
 
 # Local development settings
-/appsettings.Development.json
+**/appsettings.Development.json
 
 # Others
 ~$*
