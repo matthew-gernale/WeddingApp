@@ -1,108 +1,107 @@
 <section id="dress-code-section" class="parallax-container w-screen z-1 relative">
     <div class="flex flex-col items-center justify-center gap-4 h-screen">
-        <p class="text-[50px] !text-white font-[Ballet] font-light !m-0">What to wear?</p>
+        <p class="page-title !text-white">What to wear?</p>
+
+        <!-- Dress Code Filter Buttons -->
+        <div class="flex flex-wrap justify-center gap-4">
+            @foreach(var role in Enum.GetValues<Roles>())
+            {
+                <button class="@($"filter-button {(activeBtn == role ? "active" : "")}")" @onclick="() => FilterDressCodes(role)">@role.ToString()</button>
+            }
+        </div>
+
+        <!-- Dress Code Display -->
+        <div class="flex flex-col items-center justify-center gap-4 mt-8">
+            @foreach(var dressCode in dressCodes.Where(dc => dc.Role == activeBtn))
+            {
+                <div class="flex flex-col items-center justify-center gap-4">
+                    <div class="flex flex-wrap justify-center gap-4 mt-4">
+                        @foreach(var attire in dressCode.Attires)
+                        {
+                            <div class="overflow-hidden size-50 rounded-lg">
+                                <img src="@attire" alt="Dress Code Attire" class="cursor-pointer size-50 object-cover rounded-lg hover:scale-105 transition-transform duration-200" />
+                            </div>
+                        }
+                    </div>
+
+                    <div class="flex flex-wrap justify-center gap-[2px]">
+                        @foreach(var palette in dressCode.ColorPalette)
+                        {
+                            <div class="size-20 shadow-md" style="@($"background-color: {palette};")"></div>
+                        }
+                    </div>
+                    <p class="!text-white text-lg text-center max-w-xl">@dressCode.Description</p>
+                </div>
+            }
+        </div>
     </div>
 </section>
 
 
 @code {
-    private class DressCode {
-        public string Role { get; set; }
-        public List<string> Colors { get; set; }
-        public List<string> SampleImgs { get; set; }
-    }
+    Roles activeBtn = Roles.BRIDE;
 
-    private List<DressCode> dressCodes = new List<DressCode>
+    List<DressCode> dressCodes = new List<DressCode>
     {
-        new DressCode
-        {
-            Role = "Groom",
-            Colors = new List<string> { "Blush Pink", "Champagne", "Sage Green" },
-            SampleImgs = new List<string>
-            {
-                "images/dress-code/bridesmaid1.jpg",
-                "images/dress-code/bridesmaid2.jpg"
-            }
+        new DressCode {
+            Role = Roles.BRIDE,
+            ColorPalette = new List<string> { "#FFFFFF", "#F8F6F0", "#C0C0C0" },
+            Attires = new List<string> { "images/dress-codes/bride/gown1.jpg", "images/dress-codes/bride/gown2.jpg", "images/dress-codes/bride/sandals.jpg", "images/dress-codes/bride/accessories.jpg", "images/dress-codes/bride/bouquet.jpg" },
+            Description = "The bride will be wearing a beautiful white gown, so we encourage guests to wear light and pastel colors to complement the wedding theme."
         },
-        new DressCode
-        {
-            Role = "Bride",
-            Colors = new List<string> { "Blush Pink", "Champagne", "Sage Green" },
-            SampleImgs = new List<string>
-            {
-                "images/dress-code/bridesmaid1.jpg",
-                "images/dress-code/bridesmaid2.jpg"
-            }
+        new DressCode {
+            Role = Roles.GROOM,
+            ColorPalette = new List<string> { "#462d26", "#FFFFFF", "#000000", "#4f2227" },
+            Attires = new List<string> { "images/dress-codes/groom/suit1.jpg", "images/dress-codes/groom/pants.jpg", "images/dress-codes/groom/shoes.jpg", "images/dress-codes/groom/accessories.jpg", "images/dress-codes/groom/glasses.jpg" },
+            Description = "The groom will be wearing a stylish suit, so we encourage guests to coordinate with darker and more formal colors."
         },
-        new DressCode
-        {
-            Role = "Mother",
-            Colors = new List<string> { "Blush Pink", "Champagne", "Sage Green" },
-            SampleImgs = new List<string>
-            {
-                "images/dress-code/bridesmaid1.jpg",
-                "images/dress-code/bridesmaid2.jpg"
-            }
+        new DressCode {
+            Role = Roles.FATHER,
+            ColorPalette = new List<string> { "#462d26", "#FFFFFF", "#000000", "#4f2227" },
+            Attires = new List<string> { "images/dress-codes/father/suit.jpg", "images/dress-codes/father/tie.jpg", "images/dress-codes/father/shoes.jpg", "images/dress-codes/father/belt.jpg", "images/dress-codes/father/watch.jpg" },
+            Description = "The groom will be wearing a stylish suit, so we encourage guests to coordinate with darker and more formal colors."
         },
-        new DressCode
-        {
-            Role = "Father",
-            Colors = new List<string> { "Blush Pink", "Champagne", "Sage Green" },
-            SampleImgs = new List<string>
-            {
-                "images/dress-code/bridesmaid1.jpg",
-                "images/dress-code/bridesmaid2.jpg"
-            }
+        new DressCode {
+            Role = Roles.MOTHER,
+            ColorPalette = new List<string> { "#462d26", "#FFFFFF", "#000000", "#4f2227" },
+            Attires = new List<string> { "images/dress-codes/groom/suit1.jpg", "images/dress-codes/groom/pants.jpg", "images/dress-codes/groom/shoes.jpg", "images/dress-codes/groom/accessories.jpg", "images/dress-codes/groom/glasses.jpg" },
+            Description = "The groom will be wearing a stylish suit, so we encourage guests to coordinate with darker and more formal colors."
         },
-        new DressCode
-        {
-            Role = "Bridesmaids",
-            Colors = new List<string> { "Blush Pink", "Champagne", "Sage Green" },
-            SampleImgs = new List<string>
-            {
-                "images/dress-code/bridesmaid1.jpg",
-                "images/dress-code/bridesmaid2.jpg"
-            }
+        new DressCode {
+            Role = Roles.GROOMSMEN,
+            ColorPalette = new List<string> { "#462d26", "#FFFFFF", "#000000", "#4f2227" },
+            Attires = new List<string> { "images/dress-codes/groom/suit1.jpg", "images/dress-codes/groom/pants.jpg", "images/dress-codes/groom/shoes.jpg", "images/dress-codes/groom/accessories.jpg", "images/dress-codes/groom/glasses.jpg" },
+            Description = "The groom will be wearing a stylish suit, so we encourage guests to coordinate with darker and more formal colors."
         },
-        new DressCode
-        {
-            Role = "Groomsmen",
-            Colors = new List<string> { "Navy Blue", "Charcoal Gray", "Burgundy" },
-            SampleImgs = new List<string>
-            {
-                "images/dress-code/groomsman1.jpg",
-                "images/dress-code/groomsman2.jpg" 
-            }
+        new DressCode {
+            Role = Roles.BRIDESMAID,
+            ColorPalette = new List<string> { "#462d26", "#FFFFFF", "#000000", "#4f2227" },
+            Attires = new List<string> { "images/dress-codes/groom/suit1.jpg", "images/dress-codes/groom/pants.jpg", "images/dress-codes/groom/shoes.jpg", "images/dress-codes/groom/accessories.jpg", "images/dress-codes/groom/glasses.jpg" },
+            Description = "The groom will be wearing a stylish suit, so we encourage guests to coordinate with darker and more formal colors."
         },
-        new DressCode
-        {
-            Role = "GodFather",
-            Colors = new List<string> { "Blush Pink", "Champagne", "Sage Green" },
-            SampleImgs = new List<string>
-            {
-                "images/dress-code/bridesmaid1.jpg",
-                "images/dress-code/bridesmaid2.jpg"
-            }
+        new DressCode {
+            Role = Roles.GODFATHER,
+            ColorPalette = new List<string> { "#462d26", "#FFFFFF", "#000000", "#4f2227" },
+            Attires = new List<string> { "images/dress-codes/groom/suit1.jpg", "images/dress-codes/groom/pants.jpg", "images/dress-codes/groom/shoes.jpg", "images/dress-codes/groom/accessories.jpg", "images/dress-codes/groom/glasses.jpg" },
+            Description = "The groom will be wearing a stylish suit, so we encourage guests to coordinate with darker and more formal colors."
         },
-        new DressCode
-        {
-            Role = "GodMother",
-            Colors = new List<string> { "Blush Pink", "Champagne", "Sage Green" },
-            SampleImgs = new List<string>
-            {
-                "images/dress-code/bridesmaid1.jpg",
-                "images/dress-code/bridesmaid2.jpg"
-            }
+        new DressCode {
+            Role = Roles.GODMOTHER,
+            ColorPalette = new List<string> { "#462d26", "#FFFFFF", "#000000", "#4f2227" },
+            Attires = new List<string> { "images/dress-codes/groom/suit1.jpg", "images/dress-codes/groom/pants.jpg", "images/dress-codes/groom/shoes.jpg", "images/dress-codes/groom/accessories.jpg", "images/dress-codes/groom/glasses.jpg" },
+            Description = "The groom will be wearing a stylish suit, so we encourage guests to coordinate with darker and more formal colors."
         },
-        new DressCode
-        {
-            Role = "Guests",
-            Colors = new List<string> { "Pastels", "Floral Prints", "Neutral Tones" },
-            SampleImgs = new List<string>
-            {
-                "images/dress-code/guest1.jpg",
-                "images/dress-code/guest2.jpg"
-            }
+        new DressCode {
+            Role = Roles.GUEST,
+            ColorPalette = new List<string> { "#462d26", "#FFFFFF", "#000000", "#4f2227" },
+            Attires = new List<string> { "images/dress-codes/groom/suit1.jpg", "images/dress-codes/groom/pants.jpg", "images/dress-codes/groom/shoes.jpg", "images/dress-codes/groom/accessories.jpg", "images/dress-codes/groom/glasses.jpg" },
+            Description = "The groom will be wearing a stylish suit, so we encourage guests to coordinate with darker and more formal colors."
         }
     };
+
+    void FilterDressCodes(Roles role)
+    {
+        activeBtn = role;
+        StateHasChanged();
+    }
 }
