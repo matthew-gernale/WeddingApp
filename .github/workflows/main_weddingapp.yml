@@ -24,7 +24,7 @@ jobs:
           dotnet-version: '10.x'
 
       - name: Build with dotnet
-        run: dotnet build WeddingApp.Server/WeddingApp.slnx --configuration Release
+        run: dotnet build WeddingApp.Server/WeddingApp.Server.slnx --configuration Release
 
       - name: dotnet publish
         run: dotnet publish WeddingApp.Server/WeddingApp.Server.csproj -c Release -o "${{env.DOTNET_ROOT}}/myapp"
