@@ -1,0 +1,108 @@
+<section id="dress-code-section" class="parallax-container w-screen z-1 relative">
+    <div class="flex flex-col items-center justify-center gap-4 h-screen">
+        <p class="text-[50px] !text-white font-[Ballet] font-light !m-0">What to wear?</p>
+    </div>
+</section>
+
+
+@code {
+    private class DressCode {
+        public string Role { get; set; }
+        public List<string> Colors { get; set; }
+        public List<string> SampleImgs { get; set; }
+    }
+
+    private List<DressCode> dressCodes = new List<DressCode>
+    {
+        new DressCode
+        {
+            Role = "Groom",
+            Colors = new List<string> { "Blush Pink", "Champagne", "Sage Green" },
+            SampleImgs = new List<string>
+            {
+                "images/dress-code/bridesmaid1.jpg",
+                "images/dress-code/bridesmaid2.jpg"
+            }
+        },
+        new DressCode
+        {
+            Role = "Bride",
+            Colors = new List<string> { "Blush Pink", "Champagne", "Sage Green" },
+            SampleImgs = new List<string>
+            {
+                "images/dress-code/bridesmaid1.jpg",
+                "images/dress-code/bridesmaid2.jpg"
+            }
+        },
+        new DressCode
+        {
+            Role = "Mother",
+            Colors = new List<string> { "Blush Pink", "Champagne", "Sage Green" },
+            SampleImgs = new List<string>
+            {
+                "images/dress-code/bridesmaid1.jpg",
+                "images/dress-code/bridesmaid2.jpg"
+            }
+        },
+        new DressCode
+        {
+            Role = "Father",
+            Colors = new List<string> { "Blush Pink", "Champagne", "Sage Green" },
+            SampleImgs = new List<string>
+            {
+                "images/dress-code/bridesmaid1.jpg",
+                "images/dress-code/bridesmaid2.jpg"
+            }
+        },
+        new DressCode
+        {
+            Role = "Bridesmaids",
+            Colors = new List<string> { "Blush Pink", "Champagne", "Sage Green" },
+            SampleImgs = new List<string>
+            {
+                "images/dress-code/bridesmaid1.jpg",
+                "images/dress-code/bridesmaid2.jpg"
+            }
+        },
+        new DressCode
+        {
+            Role = "Groomsmen",
+            Colors = new List<string> { "Navy Blue", "Charcoal Gray", "Burgundy" },
+            SampleImgs = new List<string>
+            {
+                "images/dress-code/groomsman1.jpg",
+                "images/dress-code/groomsman2.jpg" 
+            }
+        },
+        new DressCode
+        {
+            Role = "GodFather",
+            Colors = new List<string> { "Blush Pink", "Champagne", "Sage Green" },
+            SampleImgs = new List<string>
+            {
+                "images/dress-code/bridesmaid1.jpg",
+                "images/dress-code/bridesmaid2.jpg"
+            }
+        },
+        new DressCode
+        {
+            Role = "GodMother",
+            Colors = new List<string> { "Blush Pink", "Champagne", "Sage Green" },
+            SampleImgs = new List<string>
+            {
+                "images/dress-code/bridesmaid1.jpg",
+                "images/dress-code/bridesmaid2.jpg"
+            }
+        },
+        new DressCode
+        {
+            Role = "Guests",
+            Colors = new List<string> { "Pastels", "Floral Prints", "Neutral Tones" },
+            SampleImgs = new List<string>
+            {
+                "images/dress-code/guest1.jpg",
+                "images/dress-code/guest2.jpg"
+            }
+        }
+    };
+}

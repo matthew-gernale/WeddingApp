@@ -1,0 +1,38 @@
+﻿@page "/counter"
+@inject IGDriveService GDriveService
+
+
+<PageTitle>Counter</PageTitle>
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+@code {
+    private int currentCount = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await GDriveService.GetAllDrives();
+        if(!response.IsSuccess)
+        {
+            Console.WriteLine(response.ErrorMessage);
+        }
+        else
+        {
+            var drives = response.Data;
+            foreach(var drive in drives)
+            {
+                Console.WriteLine($"Drive ID: {drive.Id}");
+                Console.WriteLine($"Drive Name: {drive.Name}");
+            }
+        }
+    }
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+}

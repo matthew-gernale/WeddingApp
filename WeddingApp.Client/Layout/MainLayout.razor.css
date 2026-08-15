@@ -1,0 +1,36 @@
+.wedding-app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #faf9f7 0%, #f5f3f1 100%);
+}
+
+.main-content {
+    flex: 1;
+    width: 100%;
+}
+
+.page-content {
+    padding: 0;
+    min-height: calc(100vh - 300px);
+}
+
+.wedding-footer {
+    background: linear-gradient(135deg, #8b3a3a 0%, #6b2c2c 100%);
+    color: #f0e6e1;
+    padding: 2rem 1rem;
+    text-align: center;
+    margin-top: 3rem;
+    font-size: 0.9rem;
+}
+
+.footer-content p {
+    margin: 0;
+    letter-spacing: 0.5px;
+}
+
+@media (max-width: 768px) {
+    .page-content {
+        padding: 1rem 0;
+    }
+}

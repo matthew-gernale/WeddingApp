@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
+    <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WeddingApp.Shared\WeddingApp.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
+  </ItemGroup>
+
+
+	<ItemGroup>
+		<Using Include="System.Net.Http.Json" />
+		<Using Include="Microsoft.AspNetCore.Components.Web" />
+		<Using Include="Microsoft.AspNetCore.Components.WebAssembly.Hosting" />
+
+		<Using Include="WeddingApp.Client" />
+		<Using Include="WeddingApp.Client.Services.GDriveClientService" />
+
+		<Using Include="WeddingApp.Shared.DTO.Response" />
+		<Using Include="WeddingApp.Shared.DTO.GDriveDTOs" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <Folder Include="Component\" />
+	</ItemGroup>
+</Project>

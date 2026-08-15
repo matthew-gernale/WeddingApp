@@ -1,0 +1,71 @@
+﻿
+@inject IJSRuntime JS
+
+<section id="hero-section"
+         class="relative z-10 min-h-screen w-full !pt-[110px] !mt-[-75px]">
+
+    <!-- Hero content -->
+
+    <div class="mx-auto flex min-h-screen w-full flex-col px-6 sm:px-10">
+
+        <!-- M -->
+        <div class="flex items-start justify-between !ml-[-60px]">
+            <div class="hero-letter hero-m
+                        font-[Cormorant_Garamond]
+                        font-bolder
+                        text-[600px]
+                        leading-[0.7]
+                        tracking-[-0.08em]
+                        text-[#fffaf4]">
+                M
+            </div>
+        </div>
+
+        <!-- Date -->
+        <div class="flex flex-1 flex-col items-center justify-center pb-12 text-center sm:pb-20">
+
+            <p class="!m-0 text-1xl !text-white font-[Montserrat] font-light tracking-[0.3em] font-stretch-expanded w-fit">
+                OCTOBER 08, 2026
+            </p>
+
+            <p class="!text-white text-2xl font-[Montserrat] font-light tracking-[0.3em] font-stretch-expanded !m-0">
+                Matthew Gernale & Erika Joyce Gatchalian
+            </p>
+
+            <p class="!m-0 text-1xl !text-white font-[Montserrat] font-light tracking-[0.3em] font-stretch-expanded w-fit">
+                is getting married!
+            </p>
+
+        </div>
+
+        <!-- E -->
+        <div class="flex items-end justify-between gap-6
+                    font-serif uppercase text-[#fffaf4]
+                    !mb-[110px]">
+
+            <div></div>
+
+            <div class="hero-letter hero-e
+                        font-[Cormorant_Garamond]
+                        font-bolder
+                        text-[600px]
+                        leading-[0.7]
+                        tracking-[-0.08em]
+                        text-[#fffaf4]">
+                E
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("initWeddingHero");
+        }
+    }
+}

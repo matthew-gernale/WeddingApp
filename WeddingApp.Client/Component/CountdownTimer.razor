@@ -1,0 +1,110 @@
+<div class="mt-8 flex w-full max-w-3xl justify-center gap-4 sm:gap-8 !pt-[30px]">
+
+    <!-- Days -->
+    <div class="flex flex-col items-center">
+        <div class="flex h-20 w-20 items-center justify-center rounded-lg bg-[#550b14] text-white shadow-md sm:h-28 sm:w-28">
+            <span class="font-[Montserrat] text-3xl font-light sm:text-5xl">
+                @Days
+            </span>
+        </div>
+
+        <span class="mt-3 text-xs uppercase tracking-[0.25em] text-[#550b14] sm:text-sm">
+            Days
+        </span>
+    </div>
+
+    <!-- Hours -->
+    <div class="flex flex-col items-center">
+        <div class="flex h-20 w-20 items-center justify-center rounded-lg bg-[#550b14] text-white shadow-md sm:h-28 sm:w-28">
+            <span class="font-[Montserrat] text-3xl font-light sm:text-5xl">
+                @Hours.ToString("00")
+            </span>
+        </div>
+
+        <span class="mt-3 text-xs uppercase tracking-[0.25em] text-[#550b14] sm:text-sm">
+            Hours
+        </span>
+    </div>
+
+    <!-- Minutes -->
+    <div class="flex flex-col items-center">
+        <div class="flex h-20 w-20 items-center justify-center rounded-lg bg-[#550b14] text-white shadow-md sm:h-28 sm:w-28">
+            <span class="font-[Montserrat] text-3xl font-light sm:text-5xl">
+                @Minutes.ToString("00")
+            </span>
+        </div>
+
+        <span class="mt-3 text-xs uppercase tracking-[0.25em] text-[#550b14] sm:text-sm">
+            Minutes
+        </span>
+    </div>
+
+    <!-- Seconds -->
+    <div class="flex flex-col items-center">
+        <div class="flex h-20 w-20 items-center justify-center rounded-lg bg-[#550b14] text-white shadow-md sm:h-28 sm:w-28">
+            <span class="font-[Montserrat] text-3xl font-light sm:text-5xl">
+                @Seconds.ToString("00")
+            </span>
+        </div>
+
+        <span class="mt-3 text-xs uppercase tracking-[0.25em] text-[#550b14] sm:text-sm">
+            Seconds
+        </span>
+    </div>
+
+</div>
+
+
+@code {
+    private DateTime WeddingDate = new DateTime(2026, 10, 8, 14, 0, 0);
+
+    private int Days;
+    private int Hours;
+    private int Minutes;
+    private int Seconds;
+
+    private System.Threading.Timer? _timer;
+
+    protected override void OnInitialized()
+    {
+        UpdateCountdown();
+
+        _timer = new System.Threading.Timer(
+            _ =>
+            {
+                InvokeAsync(() =>
+                {
+                    UpdateCountdown();
+                    StateHasChanged();
+                });
+            },
+            null,
+            1000,
+            1000
+        );
+    }
+
+    private void UpdateCountdown()
+    {
+        var remaining = WeddingDate - DateTime.Now;
+
+        if (remaining <= TimeSpan.Zero)
+        {
+            Days = 0;
+            Hours = 0;
+            Minutes = 0;
+            Seconds = 0;
+            return;
+        }
+
+        Days = remaining.Days;
+        Hours = remaining.Hours;
+        Minutes = remaining.Minutes;
+        Seconds = remaining.Seconds;
+    }
+
+    public void Dispose()
+    {
+        _timer?.Dispose();
+    }
+}
