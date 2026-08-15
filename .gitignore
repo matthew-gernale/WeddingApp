@@ -61,3 +61,6 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# Visual Studio publish profiles
+**/Properties/PublishProfiles/
