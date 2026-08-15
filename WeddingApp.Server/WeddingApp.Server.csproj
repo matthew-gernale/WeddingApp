@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\WeddingApp.Client\WeddingApp.Client.csproj" />
     <ProjectReference Include="..\WeddingApp.Shared\WeddingApp.Shared.csproj" />
   </ItemGroup>
 
