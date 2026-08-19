@@ -1,0 +1,351 @@
+@using Microsoft.JSInterop
+@inject IJSRuntime JS
+
+<div>
+    <!-- RSVP Button -->
+    <button
+        @onclick="OpenModal"
+        class="animated-btn white-btn">
+        RSVP Now
+    </button>
+</div>
+
+@if (IsOpen)
+{
+    <!-- Backdrop -->
+    <div
+        class="fixed inset-0 z-50 flex items-center justify-center
+               bg-black/40 px-4 backdrop-blur-sm"
+        @onclick="HandleBackdropClick">
+
+        <!-- Modal -->
+        <div
+            @onclick:stopPropagation
+            class="relative w-full max-w-lg overflow-hidden rounded-3xl
+                   bg-white shadow-2xl">
+
+            <!-- Close -->
+            <button
+                @onclick="CloseModal"
+                class="absolute right-5 top-5 z-10 flex size-9 items-center
+                       justify-center rounded-full !text-neutral-400
+                       transition hover:bg-neutral-100 hover:text-neutral-700 cursor-pointer">
+
+                <span class="text-xl">×</span>
+            </button>
+
+            <!-- Progress -->
+            <div class="absolute left-0 right-0 top-0 h-1 !bg-neutral-100">
+                <div
+                    class="h-full bg-[#550b14] transition-all duration-500"
+                    style="width:@ProgressWidth%">
+                </div>
+            </div>
+
+            <div class="!px-7 !py-10 sm:px-10">
+
+                @if (CurrentStep == 1)
+                {
+                    <!-- STEP 1 -->
+                    <div class="animate-fade-in text-center">
+
+                        <h2 class="!mb-[10px] !text-[20px] font-[inherit] !text-neutral-800">
+                            We'd love to know who's joining us
+                        </h2>
+
+                        <p class="!mb-8 !leading-none !text-sm !text-neutral-500">
+                            Please select your name below so we know who's celebrating
+                            with us on our special day.
+                        </p>
+
+                        <div class="text-left">
+
+                            <label class="!mb-[5px] block !text-sm !font-medium !text-neutral-700">
+                                Your Name
+                            </label>
+
+                            <select
+                                @bind="SelectedGuest"
+                                class="w-full rounded-lg border border-neutral-200
+                                       !bg-neutral-50 !px-4 !py-3.5 text-[18px]
+                                       !text-neutral-700 outline-none
+                                       transition focus:border-neutral-400
+                                       focus:bg-white focus:ring-2
+                                       focus:ring-neutral-200">
+
+                                <option value="">
+                                    Select your name...
+                                </option>
+
+                                @foreach (var guest in Guests)
+                                {
+                                    <option value="@guest">
+                                        @guest
+                                    </option>
+                                }
+
+                            </select>
+
+                        </div>
+
+                        <button
+                            @onclick="NextToAttendance"
+                            disabled="@string.IsNullOrWhiteSpace(SelectedGuest)"
+                            class="!mt-[20px] w-full rounded-lg bg-[#550b14] !px-6 !py-3.5
+                                   text-[18px] font-medium text-white cursor-pointer
+                                   transition-all duration-300
+                                   hover:bg-[#550b14]/50
+                                   disabled:cursor-not-allowed
+                                   disabled:bg-neutral-300">
+
+                            Continue
+                        </button>
+
+                    </div>
+                }
+                else if (CurrentStep == 2)
+                {
+                    <!-- STEP 2 -->
+                    <div class="animate-fade-in text-center">
+
+                        <h2 class="!mb-3 !text-2xl !font-[inherit] !text-neutral-800">
+                            Will You Be Celebrating With Us?
+                        </h2>
+
+                        <p class="!mb-8 !text-sm !leading-none !text-neutral-500">
+                            Hi <strong>@SelectedGuest</strong>! We'd be so happy to have you
+                            with us on our special day.
+                        </p>
+
+                        <div class="flex flex-col gap-[20px] text-left">
+
+                            <!-- YES -->
+                            <button
+                                @onclick="() => SelectAttendance(true)"
+                                class="@($"{GetAttendanceClass(true)} cursor-pointer")">
+
+                                <div class="flex items-center gap-4">
+                                    <div>
+                                        <p class="!m-0 !font-medium !text-[#550b14]">
+                                            Yes, I'll be there!
+                                        </p>
+
+                                        <p class="!m-0 !mt-1 !text-xs !text-[#550b14]">
+                                            I can't wait to celebrate with you.
+                                        </p>
+                                    </div>
+                                </div>
+
+                            </button>
+
+                            <!-- NO -->
+                            <button
+                                @onclick="() => SelectAttendance(false)"
+                                class="@($"{GetAttendanceClass(false)} cursor-pointer")">
+
+                                <div class="flex items-center gap-4">
+                                    <div>
+                                        <p class="!m-0 !font-medium !text-[#550b14]">
+                                            Sorry, I won't be able to attend
+                                        </p>
+
+                                        <p class="!m-0 !mt-1 !text-xs !text-[#550b14]">
+                                            I'll be celebrating with you in spirit.
+                                        </p>
+                                    </div>
+                                </div>
+
+                            </button>
+
+                        </div>
+
+                        <button
+                            @onclick="SubmitRsvp"
+                            disabled="@(!AttendanceSelected)"
+                            class="!mt-[20px] w-full rounded-lg bg-[#550b14] !px-6 !py-3.5
+                                   text-[18px] font-medium text-white cursor-pointer
+                                   transition-all duration-300
+                                   hover:bg-[#550b14]/50
+                                   disabled:cursor-not-allowed
+                                   disabled:bg-neutral-300">
+
+                            Confirm RSVP
+                        </button>
+ 
+                        <button
+                            @onclick="PreviousStep"
+                            class="!mt-3 w-full !py-2 !text-sm !text-neutral-400
+                                   transition hover:text-neutral-700 cursor-pointer">
+
+                            ← Go Back
+                        </button>
+
+                    </div>
+                }
+                else if (CurrentStep == 3)
+                {
+                    <!-- SUCCESS / DECLINE -->
+                    <div class="animate-fade-in py-6 text-center">
+
+                        @if (WillAttend != null && WillAttend == true)
+                        {
+                            <h2 class="!mb-4 !text-2xl !font-[inherit] !text-[#550b14]">
+                                Yay! We'll See You There!
+                            </h2>
+
+                            <p class="!mx-auto max-w-sm !text-sm !leading-none
+                                      !text-neutral-500">
+
+                                Thank you for confirming your attendance,
+                                @SelectedGuest.
+
+                                <br /><br />
+
+                                We can't wait to celebrate this beautiful
+                                day with you!
+                            </p>
+                        }
+                        else
+                        {
+                            <h2 class="!mb-4 !text-2xl !font-[inherit] !text-[#550b14]">
+                                You'll Surely Be Missed
+                            </h2>
+
+                            <p class="!mx-auto max-w-sm !text-sm !leading-none
+                                      !text-neutral-500">
+
+                                We're sorry to hear that you won't be able
+                                to join us.
+
+                                <br /><br />
+
+                                Thank you for letting us know.
+                                You'll definitely be missed!
+                            </p>
+                        }
+
+                        <button
+                            @onclick="CloseModal"
+                            class="!mt-[20px] w-full rounded-lg bg-[#550b14] !px-6 !py-3.5
+                                   text-[18px] font-medium text-white cursor-pointer
+                                   transition-all duration-300
+                                   hover:bg-[#550b14]/50
+                                   disabled:cursor-not-allowed
+                                   disabled:bg-neutral-300">
+
+                            Done
+                        </button>
+
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool IsOpen;
+    private int CurrentStep = 1;
+
+    private string SelectedGuest = string.Empty;
+
+    private bool? WillAttend;
+    private bool AttendanceSelected => WillAttend.HasValue;
+
+    [Parameter]
+    public List<string> Guests { get; set; } = new();
+
+    [Parameter]
+    public string GoogleFormUrl { get; set; } = string.Empty;
+
+    [Parameter]
+    public string NameEntryId { get; set; } = string.Empty;
+
+    [Parameter]
+    public string AttendanceEntryId { get; set; } = string.Empty;
+
+
+    private double ProgressWidth =>
+        CurrentStep switch
+        {
+            1 => 33.33,
+            2 => 66.66,
+            3 => 100,
+            _ => 33.33
+        };
+
+
+    private void OpenModal()
+    {
+        CurrentStep = 1;
+        SelectedGuest = string.Empty;
+        WillAttend = null;
+        IsOpen = true;
+    }
+
+
+    private void CloseModal()
+    {
+        IsOpen = false;
+    }
+
+
+    private void HandleBackdropClick()
+    {
+        CloseModal();
+    }
+
+
+    private void NextToAttendance()
+    {
+        if (string.IsNullOrWhiteSpace(SelectedGuest))
+            return;
+
+        CurrentStep = 2;
+    }
+
+
+    private void PreviousStep()
+    {
+        CurrentStep = 1;
+    }
+
+
+    private void SelectAttendance(bool attending)
+    {
+        WillAttend = attending;
+    }
+
+
+    private async Task SubmitRsvp()
+    {
+        if (!WillAttend.HasValue)
+            return;
+
+        if (string.IsNullOrWhiteSpace(GoogleFormUrl))
+            return;
+
+        await JS.InvokeVoidAsync(
+            "submitGoogleRsvp",
+            GoogleFormUrl,
+            NameEntryId,
+            SelectedGuest,
+            AttendanceEntryId,
+            WillAttend.Value
+                ? "Yes, I will be there 🎉"
+                : "Sorry, I can’t make it 😔"
+        );
+
+        CurrentStep = 3;
+    }
+
+    private string GetAttendanceClass(bool attending)
+    {
+        var selected = WillAttend == attending;
+
+        return selected
+            ? "w-full rounded-2xl outline-2 outline-offset-4 outline-[#550b14] !p-[30px] bg-[#550b14]/20 text-left transition-all duration-100"
+            : "w-full rounded-2xl border border-neutral-200 !p-[30px] bg-white text-left transition-all duration-300 hover:border-[#550b14] hover:shadow-sm";
+    }
+}

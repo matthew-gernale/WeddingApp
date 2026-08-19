@@ -1,8 +1,169 @@
-<section id="rsvp-section" class="bg-[#550b14] relative w-screen min-h-screen flex items-center justify-center z-1">
 
-    <div class="flex flex-col items-center justify-center gap-4 z-5">
-        <p class="page-title !text-white">Will you Join us?</p>
+<section id="rsvp-section"
+         class="relative flex min-h-screen w-screen items-center justify-center
+                overflow-hidden bg-[#550b14] px-6 py-20">
+
+    <!-- Background -->
+    <div class="bg-dotted-pattern-edges pointer-events-none absolute inset-0 h-full w-full"></div>
+
+    <!-- Content -->
+    <div class="relative z-10 flex w-full max-w-2xl flex-col items-center justify-center gap-6 text-center">
+
+        <p class="page-title !text-white !m-0">
+            Will You Join Us?
+        </p>
+
+        <p class="!m-0 text-center !text-white/80">
+            We’d love to celebrate this special day with you.
+            Kindly let us know if you’ll be joining us as we begin
+            this beautiful chapter together.
+        </p>
+
+        <!-- QR Code -->
+        <div class="!mt-4 rounded-2xl bg-white p-4 shadow-xl">
+            <img src="/images/qr/rsvp-qr.png"
+                 alt="Scan to RSVP"
+                 class="size-48 sm:size-56" />
+        </div>
+
+        <p class="!m-0 text-sm !text-white/70">
+            Scan the QR code to RSVP
+        </p>
+
+        <!-- Divider -->
+        <div class="flex w-full max-w-xs items-center gap-4">
+            <div class="h-px flex-1 bg-white/20"></div>
+
+            <span class="text-sm !text-white/60">
+                or
+            </span>
+
+            <div class="h-px flex-1 bg-white/20"></div>
+        </div>
+
+        <!-- RSVP Button -->
+        <RSVPModal
+            GoogleFormUrl="@GoogleFormUrl"
+            NameEntryId="@NameEntryId"
+            AttendanceEntryId="@AttendanceEntryId"
+            Guests="@GuestNames" />
+
     </div>
 
-    <div class="bg-dotted-pattern-edges h-screen w-full absolute"></div> 
 </section>
+
+
+@code {
+    private const string GoogleFormUrl = "https://docs.google.com/forms/d/e/1FAIpQLSd_KF2RWRRMO7AIr370FflLtBZAWsPFvcGLd3TFpDz8RtxFhg/formResponse";
+
+    private const string NameEntryId = "entry.877086558";
+
+    private const string AttendanceEntryId = "entry.1238944723";
+
+    List<string> GuestNames = new List<string>
+    {
+        "Editha Gatchalian",
+        "Valentin Gatchalian",
+        "Val Joseph Gatchalian",
+        "Cyrine Gernale",
+        "Salvador Gernale",
+        "Cedrick Gernale",
+        "Matthew Gernale",
+        "Erika Gatchalian",
+        "Patricia Tina",
+        "Dave Villasenor",
+        "Edmarson Tina",
+        "Bhimell Tina",
+        "Medeline Tina",
+        "Jude Guevarra",
+        "Eddie Tina",
+        "Darwin Gernale",
+        "Pia Gernale",
+        "Regine Gernale",
+        "Jesu Gernale",
+        "Abby Gernale",
+        "Hermes Gernale",
+        "Priscilla Gernale",
+        "Enriqueta Torres",
+        "Zenaida Dela Cruz",
+        "Boss D",
+        "Driver",
+        "Reynold Mendoza",
+        "Ninong +1",
+        "Marella",
+        "Riel",
+        "Ninang Geraldine",
+        "Ninang +1",
+        "Edcel Tina",
+        "Quintin Paredes",
+        "Arvin Guillermo",
+        "Joshua Abellera",
+        "Mark Zamora",
+        "James Ignacio",
+        "John Michael Pineda",
+        "Ninong Embey",
+        "Ninang Jasmine",
+        "Nissan Tina",
+        "Jr Diaz",
+        "Jr’s GF",
+        "Cy Diaz",
+        "Emil Cruz",
+        "Elaiza Mala",
+        "Angelo Mala",
+        "Nhito Cruz",
+        "Victoria Cruz",
+        "Arcie Cruz",
+        "Habibi",
+        "Sharmaine Cruz",
+        "Albel Cruz",
+        "Jay Ar Cruz",
+        "Florinio Cruz",
+        "Reinalyn Dela Rosa",
+        "Marilyn Dela Rosa",
+        "Ramrell Dela Rosa",
+        "Crizza Dela Rosa",
+        "Nene Santos",
+        "Anabelle Gatchalian",
+        "Mariane Santos",
+        "Tess Leongson",
+        "Ninang Roseanne Mendoza",
+        "Jaime Mendoza",
+        "Rachelle Ann Gumatay",
+        "Benny Gumatay",
+        "Ninang GIna Melquiades",
+        "Gina +1",
+        "Driver",
+        "Ninong Santiago Malubay",
+        "Ninong +1",
+        "Ninong Eduardo Viseral",
+        "Tita Grace",
+        "Shella Dela Cruz",
+        "Antonio Dela Cruz",
+        "Anne Maric Perez",
+        "Jewel Rose Maglipas",
+        "Gelo Joaquin",
+        "Liela Teodoro",
+        "Liela +1",
+        "Jovelyn Sison",
+        "Shuichi Ikizawa",
+        "Jeremy Sigue",
+        "James Robert",
+        "James +1",
+        "Jobelle De Vera",
+        "Gilliane Tolentino",
+        "Venus Gudoy",
+        "Tito Ricky",
+        "Tita Bek",
+        "Peejay Teodoro",
+        "Tita Nene",
+        "Tatay Ileng",
+        "Nanay Ena",
+        "Althea Shaine Cruz",
+        "Thess Cayanan",
+        "Driver",
+        "Thess plus 1",
+        "Jaren Cruz",
+        "Maye Cruz"
+    }.OrderBy(name => name).ToList();
+  
+}

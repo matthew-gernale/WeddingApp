@@ -1,0 +1,13 @@
+<div class="faq-card flex flex-col items-start justify-start gap-4 w-full !p-4 rounded-xl bg-white shadow-xl border border-[#550b14]/30 cursor-pointer">
+    <p class="!m-0 !text-[#550b14] font-bold !text-[13px]">@Question</p>
+    <p class="!mb-0 !mt-[-10px] !text-black font-light !text-[13px]">@Answer</p>
+</div>
+
+
+@code {
+    [Parameter]
+    public string Question { get; set; } = "Lorem Ipsum";
+
+    [Parameter]
+    public string Answer { get; set; } = "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quae impedit, debitis commodi voluptatum veritatis unde vel! Numquam ullam voluptate sint! Officia sunt nostrum dolore consequatur quod natus excepturi numquam ducimus.";
+}

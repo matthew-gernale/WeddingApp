@@ -1,8 +1,37 @@
-<section id="faq-section" class="bg-white relative w-screen min-h-screen flex items-center justify-center z-1">
+<section id="faq-section"
+         class="bg-white relative w-screen min-h-screen flex items-center justify-center z-1">
 
-    <div class="flex flex-col items-center justify-center gap-4 z-5">
-        <p class="page-title">A few things you may Wonder</p>
+    <div class="flex flex-col items-center justify-center gap-[40px] z-5 w-full">
+
+        <p class="page-title">
+            A few things you may Wonder
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full !px-[50px]">
+
+            @foreach(var item in faqItems)
+            {
+                <Card Question="@item.Question"
+                      Answer="@item.Answer" />
+            }
+
+        </div>
+
     </div>
 
-    <div class="bg-dotted-pattern-edges h-screen w-full absolute"></div>
+    <div class="bg-dotted-pattern-edges min-h-screen h-full w-full absolute"></div>
+
 </section>
+
+
+@code {
+    List<(string Question, string Answer)> faqItems = new List<(string Question, string Answer)>
+    {
+        ("What is the dress code for the wedding?", "The dress code for our wedding is semi-formal. We encourage guests to dress elegantly, but feel free to express your personal style."),
+        ("Are children allowed at the wedding?", "While we love children, we have decided to make our wedding an adult-only event. We hope you understand and can make arrangements for childcare."),
+        ("Is there parking available at the venue?", "Yes, there is ample parking available at the venue. We recommend arriving early to secure a spot."),
+        ("Can I bring a plus one?", "We kindly ask that you RSVP with the number of guests in your party. If you have a plus one, please indicate that on your RSVP."),
+        ("Will there be vegetarian or vegan options?", "Yes, we will have vegetarian and vegan options available. Please let us know your dietary preferences when you RSVP."),
+        ("What time should I arrive for the ceremony?", "We recommend arriving at least 30 minutes before the ceremony begins to ensure you have time to find your seat and settle in."),
+    };
+}
