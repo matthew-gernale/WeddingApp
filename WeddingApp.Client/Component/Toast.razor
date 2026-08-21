@@ -1,0 +1,109 @@
+
+@implements IDisposable
+@inject ToastService ToastService
+
+<div class="toast-container">
+    @foreach (var toast in Toasts)
+    {
+        <div class="toast @GetToastClass(toast.Type)"
+             @key="toast.Id">
+
+            <div class="toast-icon">
+                @((MarkupString)GetIcon(toast.Type))
+            </div>
+
+            <span class="toast-message">
+                @toast.Message
+            </span>
+
+            <button class="toast-close"
+                    @onclick="() => RemoveToast(toast)">
+                <svg viewBox="0 0 24 24">
+                    <path d="M6 6L18 18M18 6L6 18" />
+                </svg>
+            </button>
+
+        </div>
+    }
+</div>
+
+@code {
+    private readonly List<ToastMessage> Toasts = new();
+
+    protected override void OnInitialized()
+    {
+        ToastService.OnToast += ShowToast;
+    }
+
+    private void ShowToast(ToastMessage toast)
+    {
+        InvokeAsync(async () =>
+        {
+            Toasts.Add(toast);
+            StateHasChanged();
+
+            await Task.Delay(toast.Duration);
+
+            RemoveToast(toast);
+        });
+    }
+
+    private void RemoveToast(ToastMessage toast)
+    {
+        if (Toasts.Remove(toast))
+        {
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private string GetToastClass(ToastType type)
+    {
+        return type switch
+        {
+            ToastType.Success => "toast-success",
+            ToastType.Error => "toast-error",
+            ToastType.Warning => "toast-warning",
+            ToastType.Info => "toast-info",
+            _ => "toast-info"
+        };
+    }
+
+    private string GetIcon(ToastType type)
+    {
+        return type switch
+        {
+            ToastType.Success => """
+                <svg viewBox="0 0 24 24">
+                    <path d="M5 12.5L10 17L19 7" />
+                </svg>
+                """,
+
+            ToastType.Error => """
+                <svg viewBox="0 0 24 24">
+                    <path d="M7 7L17 17M17 7L7 17" />
+                </svg>
+                """,
+
+            ToastType.Warning => """
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 8V13" />
+                    <circle cx="12" cy="16.5" r=".5" />
+                    <path d="M10.3 4.8L3.2 17.2C2.5 18.4 3.4 20 4.8 20H19.2C20.6 20 21.5 18.4 20.8 17.2L13.7 4.8C13 3.6 11 3.6 10.3 4.8Z" />
+                </svg>
+                """,
+
+            _ => """
+                <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M12 10V16" />
+                    <circle cx="12" cy="7.5" r=".5" />
+                </svg>
+                """
+        };
+    }
+
+    public void Dispose()
+    {
+        ToastService.OnToast -= ShowToast;
+    }
+}

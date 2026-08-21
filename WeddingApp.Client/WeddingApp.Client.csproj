@@ -28,6 +28,7 @@
 
 		<Using Include="WeddingApp.Client" />
 		<Using Include="WeddingApp.Client.Services.GDriveClientService" />
+		<Using Include="WeddingApp.Client.Services.ToastService" />
 
 		<Using Include="WeddingApp.Shared.DTO.Response" />
 		<Using Include="WeddingApp.Shared.DTO.GDriveDTOs" />

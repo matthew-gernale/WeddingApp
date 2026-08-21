@@ -1,8 +1,64 @@
-<section id="gift-section" class="bg-white relative w-screen min-h-screen flex items-center justify-center z-1">
+@inject IJSRuntime JSRuntime
+@inject ToastService ToastService
 
-    <div class="flex flex-col items-center justify-center gap-4 z-5">
+<section id="gift-section" class="bg-white relative w-full min-h-screen flex items-center justify-center z-1 !px-6 !py-16 sm:!px-10">
+
+    <div class="flex flex-col items-center justify-center gap-4 z-5 px-6 sm:px-10">
         <p class="page-title">Your presence is our Gift</p>
+        <p class="!m-0 max-w-[1200px] text-center">Having you with us to celebrate this day is truly all the gift we need — your love, your time, and your presence mean more to us than anything wrapped in paper. But should you wish to bless our new beginning further, a small monetary gift will help us build our future home together.</p>
+
+        <!-- Divider -->
+        <div class="flex w-full max-w-xs items-center gap-4 !py-[30px]">
+            <div class="h-px flex-1 bg-black/20"></div>
+
+            <!-- <FlowerIcon2 FillColor="#000" Width="15px" Height="15px" /> -->
+            <FlowerIcon Width="10px" Height="10px" />
+
+            <div class="h-px flex-1 bg-black/20"></div>
+        </div>
+
+        <!-- QR Code -->
+        <div class="flex flex-col items-center justify-center gap-6 sm:flex-row">
+            <div class="flex flex-col items-center justify-center gap-2 shadow-xl rounded-2xl !p-4 border border-[#dbdfd9] cursor-pointer hover:translate-y-[-10px] hover:bg-[#EAF3FF] transition-all duration-300" @onclick="@(() => CopyToClipboard("GCASH"))">
+                <p class="!m-0 !py-[6px] !px-[16px] rounded-full bg-[#EAF3FF] !text-[#0A5FCC] text-[12px]">GCASH</p>
+                <img src="images/qr/gcash-qr.jpg" alt="GCash QR Code" class="size-48 sm:size-56" />
+                <div>
+                    <p class="!m-0 !text-[20px] font-bold !text-[#550b14]">Erika Joyce Gatchalian</p>
+                    <p class="!m-0 font-light !text-[13px] !text-[#6B7369] text-center">09500686215</p>
+                </div>
+            </div>
+
+            <div class="flex flex-col items-center justify-center gap-2 shadow-xl rounded-2xl !p-4 border border-[#dbdfd9] cursor-pointer hover:translate-y-[-10px] hover:bg-[#FDEDEC] transition-all duration-300" @onclick="@(() => CopyToClipboard("BPI"))">
+                <p class="!m-0 !py-[6px] !px-[16px] rounded-full bg-[#FDEDEC] !text-[#A6192E] text-[12px]">BPI</p>
+                <img src="images/qr/bpi-qr.jpg" alt="BPI QR Code" class="size-48 sm:size-56" />
+                <div>
+                    <p class="!m-0 !text-[20px] font-bold !text-[#550b14]">John Matthew Gernale</p>
+                    <p class="!m-0 font-light !text-[13px] !text-[#6B7369] text-center">5363 4701 6695 7931</p>
+                </div>
+            </div>
+        </div>
+        <p class="!m-0 text-center !text-[12px] !text-[#6B7369]">Scan the QR code or simply tap the card to copy the account details.</p>
+
+        <p class="!m-0 text-center !pt-[25px]">With all our love and gratitude — thank you.</p>
     </div>
 
     <div class="bg-dotted-pattern-edges min-h-screen h-full w-full absolute"></div>
 </section>
+
+
+@code {
+    private async Task CopyToClipboard(string bankType)
+    {
+        string text = bankType switch
+        {
+            "GCASH" => String.Join(Environment.NewLine, "Erika Joyce Gatchalian", "09500686215"),
+            "BPI" => String.Join(Environment.NewLine, "John Matthew Gernale", "5363 4701 6695 7931"),
+            _ => ""
+        };
+
+        bool result = await JSRuntime.InvokeAsync<bool>("copyToClipboard", text);
+
+        if (result) ToastService.Show("Copied to clipboard!", ToastType.Success); 
+        else ToastService.Show("Failed to copy to clipboard.", ToastType.Error);
+    }
+}

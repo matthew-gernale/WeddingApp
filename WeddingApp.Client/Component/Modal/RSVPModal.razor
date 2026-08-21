@@ -15,14 +15,14 @@
     <!-- Backdrop -->
     <div
         class="fixed inset-0 z-50 flex items-center justify-center
-               bg-black/40 px-4 backdrop-blur-sm"
+               bg-black/40 !px-4 backdrop-blur-sm"
         @onclick="HandleBackdropClick">
 
         <!-- Modal -->
         <div
             @onclick:stopPropagation
             class="relative w-full max-w-lg overflow-hidden rounded-3xl
-                   bg-white shadow-2xl">
+                   bg-white shadow-2xl m-[20px]">
 
             <!-- Close -->
             <button

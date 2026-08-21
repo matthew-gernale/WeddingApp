@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+@theme {
+    --breakpoint-xs: 420px;
+}
+
 /* =========================================
    Wedding Invitation Scroll Animation
    ========================================= */
@@ -90,10 +94,16 @@
 }
 
 .parallax-container {
-    background-image: url('images/bg/suit.jpg');
+    background-image: url('images/bg/gray-fabric.jpg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
+}
+
+@media (max-width: 768px) {
+    .parallax-container {
+        background-attachment: scroll;
+    }
 }
 
 .parallax-container-reception {
@@ -252,10 +262,11 @@
 
 .page-title {
   font-family: 'Cinzel Decorative';
-  font-size: 50px;
+  font-size: clamp(28px, 6vw, 50px);
   color: #550b14 !important;
   font-weight: 300;
   margin: 0 !important;
+  text-align: center;
 }
 
 .filter-button {
@@ -353,10 +364,204 @@
 }
 
 .faq-card {
-  transition: all 300ms;
+  transition: all 0.3s ease;
 }
 
 .faq-card:hover {
   border-left: 5px solid #550b14;
 }
 
+
+
+/* Toast notification CSS */
+
+.toast-container {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 9999;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+
+    pointer-events: none;
+}
+
+.toast {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    min-width: 280px;
+    max-width: 380px;
+
+    padding: 12px 14px;
+
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(85, 11, 20, 0.12);
+    border-radius: 14px;
+
+    box-shadow:
+        0 8px 30px rgba(85, 11, 20, 0.12);
+
+    color: #550b14;
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    pointer-events: auto;
+
+    animation: toast-enter 0.35s ease forwards;
+}
+
+.toast-icon {
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+}
+
+.toast-icon svg {
+    width: 17px;
+    height: 17px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.toast-message {
+    flex: 1;
+
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.toast-close {
+    width: 26px;
+    height: 26px;
+
+    padding: 0;
+    margin-left: 4px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    background: transparent;
+
+    color: #8c6a6f;
+    cursor: pointer;
+
+    border-radius: 50%;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.toast-close:hover {
+    background: rgba(85, 11, 20, 0.07);
+    color: #550b14;
+}
+
+.toast-close svg {
+    width: 14px;
+    height: 14px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+}
+
+/* Types */
+
+.toast-success .toast-icon {
+    background: #edf6ef;
+    color: #557a5c;
+}
+
+.toast-error .toast-icon {
+    background: #f9e9eb;
+    color: #9a3945;
+}
+
+.toast-warning .toast-icon {
+    background: #fbf3df;
+    color: #a27b2e;
+}
+
+.toast-info .toast-icon {
+    background: #eeeaf5;
+    color: #75618c;
+}
+
+
+/* Animation */
+
+@keyframes toast-enter {
+    from {
+        opacity: 0;
+        transform: translateX(30px) translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0) translateY(0);
+    }
+}
+
+
+/* Mobile */
+
+@media (max-width: 640px) {
+    .toast-container {
+        top: 16px;
+        left: 16px;
+        right: 16px;
+
+        align-items: stretch;
+    }
+
+    .toast {
+        min-width: 0;
+        width: 100%;
+        max-width: none;
+    }
+}
+
+.filter-container {
+    scrollbar-width: thin;
+    scrollbar-color: #550b14 transparent;
+}
+
+/* Chrome, Edge, Safari */
+.filter-container::-webkit-scrollbar {
+    height: 6px;
+}
+
+.filter-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.filter-container::-webkit-scrollbar-thumb {
+    background: #550b14;
+    border-radius: 9999px;
+}
+
+.filter-container::-webkit-scrollbar-thumb:hover {
+    background: #9b565e;
+}

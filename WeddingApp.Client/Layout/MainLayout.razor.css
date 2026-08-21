@@ -28,9 +28,3 @@
     margin: 0;
     letter-spacing: 0.5px;
 }
-
-@media (max-width: 768px) {
-    .page-content {
-        padding: 1rem 0;
-    }
-}
