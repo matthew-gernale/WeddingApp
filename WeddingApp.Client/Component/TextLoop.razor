@@ -1,0 +1,70 @@
+<div class="@ContainerClass">
+    <div class="@TrackClass">
+        @for (int i = 0; i < RepeatCount; i++)
+        {
+            <div class="flex shrink-0 items-center gap-6 px-3">
+                @if (!string.IsNullOrWhiteSpace(ImageSrc))
+                {
+                    <img src="@ImageSrc"
+                         alt="@ImageAlt"
+                         class="@ImageClass" />
+                }
+
+                <span class="@TextClass">
+                    @DisplayText
+                </span>
+
+                @if (!string.IsNullOrWhiteSpace(Separator))
+                {
+                    <span class="@SeparatorClass">
+                        @Separator
+                    </span>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string Text { get; set; } = "Matthew & Tina";
+
+    [Parameter]
+    public string? ImageSrc { get; set; }
+
+    [Parameter]
+    public string ImageAlt { get; set; } = "";
+
+    [Parameter]
+    public string ImageClass { get; set; } = "h-10 w-auto";
+
+    [Parameter]
+    public string Separator { get; set; } = "✦";
+
+    [Parameter]
+    public string TextClass { get; set; } =
+        "text-[32px] font-[600]  tracking-wide whitespace-nowrap";
+
+    [Parameter]
+    public string SeparatorClass { get; set; } =
+        "text-2xl";
+
+    [Parameter]
+    public string ContainerClass { get; set; } =
+        "relative w-full overflow-hidden bg-[#550b14]";
+
+    [Parameter]
+    public string TrackClass { get; set; } =
+        "flex w-max animate-text-loop items-center";
+
+    [Parameter]
+    public int RepeatCount { get; set; } = 20;
+
+    [Parameter]
+    public bool Uppercase { get; set; } = false;
+
+    private string DisplayText =>
+        Uppercase
+            ? Text.ToUpperInvariant()
+            : Text;
+}

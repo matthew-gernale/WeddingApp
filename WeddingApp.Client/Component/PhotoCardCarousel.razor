@@ -1,0 +1,76 @@
+@using System.Globalization
+
+<div class="relative flex h-[420px] md:h-[420px] lg:h-[480px] xl:h-[540px] w-full items-center justify-center overflow-hidden"
+     style="perspective: 1400px;">
+
+    @if (Imgs is not null && Imgs.Count > 0)
+    {
+        int range = Math.Min(2, (Imgs.Count - 1) / 2);
+
+        @for (int position = -range; position <= range; position++)
+        {
+            var pos = position;
+            var index = GetIndex(CurrentIndex + pos);
+
+            <div @key="index"
+                 @onclick="Advance"
+                 class="@GetCardWrapperClass(pos)"
+                 style="@GetCardStyle(pos)">
+                <img src="@Imgs[index]"
+                     alt="Wedding Picture"
+                     draggable="false"
+                     class="h-full w-full object-cover transition-transform duration-500 ease-out hover:scale-110" />
+            </div>
+        }
+    }
+
+</div>
+
+@code {
+    [Parameter] public List<string> Imgs { get; set; } = new();
+
+    private int CurrentIndex = 0;
+
+    private int GetIndex(int index) =>
+        Imgs.Count == 0 ? 0 : (index % Imgs.Count + Imgs.Count) % Imgs.Count;
+
+    private void Advance()
+    {
+        if (Imgs.Count <= 1) return;
+        CurrentIndex = GetIndex(CurrentIndex + 1);
+    }
+
+    private string GetCardWrapperClass(int position)
+    {
+        var baseClasses = "absolute top-1/2 left-1/2 " +
+                           "h-[260px] w-[190px] " +
+                           "md:h-[320px] md:w-[230px] " +
+                           "lg:h-[380px] lg:w-[280px] " +
+                           "xl:h-[440px] xl:w-[320px] " +
+                           "cursor-pointer overflow-hidden rounded-2xl shadow-2xl select-none";
+
+        return position == 0
+            ? $"{baseClasses} ring-4 ring-white/70"
+            : baseClasses;
+    }
+
+    private string GetCardStyle(int position)
+    {
+        double absPos = Math.Abs(position);
+        double scale = position == 0 ? 1.0 : Math.Max(1 - absPos * 0.16, 0.55);
+        double translateX = position * 210;
+        double translateY = absPos * 8;
+        double rotateY = Math.Clamp(position * -22, -44, 44);
+        double opacity = position == 0 ? 1 : Math.Max(1 - absPos * 0.35, 0.2);
+        int zIndex = 100 - (int)(absPos * 10);
+
+        string F(double v) => v.ToString(CultureInfo.InvariantCulture);
+
+        return "transform: translate(-50%, -50%) " +
+               $"translateX({F(translateX)}px) translateY({F(translateY)}px) " +
+               $"rotateY({F(rotateY)}deg) scale({F(scale)}); " +
+               $"opacity: {F(opacity)}; " +
+               $"z-index: {zIndex}; " +
+               "transition: transform 600ms cubic-bezier(0.22,1,0.36,1), opacity 600ms ease;";
+    }
+}

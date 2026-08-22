@@ -565,3 +565,23 @@
 .filter-container::-webkit-scrollbar-thumb:hover {
     background: #9b565e;
 }
+
+
+/* Text loop CSS */
+@keyframes text-loop {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+.animate-text-loop {
+    animation: text-loop 20s linear infinite;
+}
+
+.animate-text-loop:hover {
+    animation-play-state: paused;
+}
