@@ -548,6 +548,25 @@
     scrollbar-color: #550b14 transparent;
 }
 
+/* Spinner */
+
+.spinner {
+    width: 18px;
+    height: 18px;
+
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+
+    animation: spinner-spin 0.7s linear infinite;
+}
+
+@keyframes spinner-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 /* Chrome, Edge, Safari */
 .filter-container::-webkit-scrollbar {
     height: 6px;

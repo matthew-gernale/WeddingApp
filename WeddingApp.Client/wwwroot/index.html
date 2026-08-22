@@ -20,11 +20,17 @@
 
 <body class="no-select">
     <div id="app">
-        <svg class="loading-progress">
-            <circle r="40%" cx="50%" cy="50%" />
-            <circle r="40%" cx="50%" cy="50%" />
-        </svg>
-        <div class="loading-progress-text"></div>
+        <div class="wedding-loader">
+            <div class="wedding-logo-wrapper">
+                <img src="images/logo/me-logo-red.png"
+                    alt="Wedding logo"
+                    class="wedding-logo" />
+            </div>
+
+            <div class="loading-text">
+                Loading<span class="loading-dots"></span>
+            </div>
+        </div>
     </div>
 
     <div id="blazor-error-ui">
@@ -33,6 +39,19 @@
         <span class="dismiss">🗙</span>
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
+    <script>
+        Blazor.start().then(() => {
+            const loader = document.querySelector(".wedding-loader");
+
+            if (loader) {
+                loader.classList.add("loader-fade-out");
+
+                setTimeout(() => {
+                    loader.remove();
+                }, 700);
+            }
+        });
+    </script>
     <script src="js/hero.js"></script>
     <script src="js/rsvp.js"></script>
     <script src="js/clipboard.js"></script>

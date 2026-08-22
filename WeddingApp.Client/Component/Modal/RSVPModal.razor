@@ -1,5 +1,7 @@
 @using Microsoft.JSInterop
+@using WeddingApp.Client.Services.ToastService
 @inject IJSRuntime JS
+@inject ToastService ToastService
 
 <div>
     <!-- RSVP Button -->
@@ -161,21 +163,32 @@
 
                         <button
                             @onclick="SubmitRsvp"
-                            disabled="@(!AttendanceSelected)"
-                            class="!mt-[20px] w-full rounded-lg bg-[#550b14] !px-6 !py-3.5
+                            disabled="@(!AttendanceSelected || IsSubmitting)"
+                            class="!mt-[20px] flex w-full items-center justify-center gap-2
+                                   rounded-lg bg-[#550b14] !px-6 !py-3.5
                                    text-[18px] font-medium text-white cursor-pointer
                                    transition-all duration-300
                                    hover:bg-[#550b14]/50
                                    disabled:cursor-not-allowed
                                    disabled:bg-neutral-300">
 
-                            Confirm RSVP
+                            @if (IsSubmitting)
+                            {
+                                <span class="spinner"></span>
+                                <span>Submitting...</span>
+                            }
+                            else
+                            {
+                                <span>Confirm RSVP</span>
+                            }
                         </button>
  
                         <button
                             @onclick="PreviousStep"
+                            disabled="@IsSubmitting"
                             class="!mt-3 w-full !py-2 !text-sm !text-neutral-400
-                                   transition hover:text-neutral-700 cursor-pointer">
+                                   transition hover:text-neutral-700 cursor-pointer
+                                   disabled:cursor-not-allowed disabled:opacity-50">
 
                             ← Go Back
                         </button>
@@ -252,6 +265,7 @@
 
     private bool? WillAttend;
     private bool AttendanceSelected => WillAttend.HasValue;
+    private bool IsSubmitting;
 
     [Parameter]
     public List<string> Guests { get; set; } = new();
@@ -326,18 +340,32 @@
         if (string.IsNullOrWhiteSpace(GoogleFormUrl))
             return;
 
-        await JS.InvokeVoidAsync(
-            "submitGoogleRsvp",
-            GoogleFormUrl,
-            NameEntryId,
-            SelectedGuest,
-            AttendanceEntryId,
-            WillAttend.Value
-                ? "Yes, I will be there 🎉"
-                : "Sorry, I can’t make it 😔"
-        );
+        IsSubmitting = true;
 
-        CurrentStep = 3;
+        try
+        {
+            await JS.InvokeVoidAsync(
+                "submitGoogleRsvp",
+                GoogleFormUrl,
+                NameEntryId,
+                SelectedGuest,
+                AttendanceEntryId,
+                WillAttend.Value
+                    ? "Yes, I will be there 🎉"
+                    : "Sorry, I can’t make it 😔"
+            );
+
+            ToastService.Success("Your RSVP was submitted successfully!");
+            CurrentStep = 3;
+        }
+        catch
+        {
+            ToastService.Error("Something went wrong while submitting your RSVP. Please try again.");
+        }
+        finally
+        {
+            IsSubmitting = false;
+        }
     }
 
     private string GetAttendanceClass(bool attending)
