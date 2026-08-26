@@ -1,0 +1,74 @@
+<section id="timeline-hero-section" class="relative w-full min-h-screen flex items-center justify-center z-1 !px-6 !py-16">
+
+    <div class="bg-dotted-pattern-edges min-h-screen h-full w-full absolute pointer-events-none"></div>
+    
+
+    <div class="absolute inset-0 overflow-hidden">
+        <div class="absolute -left-20 top-20 h-96 w-96 rounded-full bg-pink-400/30 blur-3xl"></div>
+        <div class="absolute right-10 top-40 h-80 w-80 rounded-full bg-purple-400/30 blur-3xl"></div>
+        <div class="absolute bottom-10 left-1/3 h-96 w-96 rounded-full bg-blue-400/30 blur-3xl"></div>
+    </div>
+
+    <div class="flex flex-col items-center justify-center gap-4 z-5">
+        <p class="page-title">The Timeline</p>
+        <p class="!text-black text-center !m-0 !pb-[50px]">
+            End the celebration with love, joy, and a beautiful send-off for the newlyweds. From the first hello to the last dance, here’s how our day unfolds.
+        </p>
+
+        <Timeline TimelineItems="@(timelineItems)" />
+    </div>
+</section>
+
+
+@code {
+    List<TimelineItemDTO> timelineItems = new List<TimelineItemDTO> {
+        new TimelineItemDTO {
+            Title = "Church Assembly",
+            Description = "Please arrive early and settle in as we prepare to begin the ceremony.",
+            Icon = "images/icons/church.png",
+            Time = new DateTime(2026, 10, 8, 14, 0, 0)
+        },
+        new TimelineItemDTO {
+            Title = "Wedding Ceremony",
+            Description = "Join us as we exchange vows and begin our forever.",
+            Icon = "images/icons/ring.png",
+            Time = new DateTime(2026, 10, 8, 15, 0, 0)
+        },
+        new TimelineItemDTO {
+            Title = "Group Pictorial",
+            Description = "A time to capture beautiful memories with our family and loved ones.",
+            Icon = "images/icons/photo-camera.png",
+            Time = new DateTime(2026, 10, 8, 16, 0, 0)
+        },
+        new TimelineItemDTO {
+            Title = "Cocktail Time",
+            Description = "During this time, the couple will be having their wedding portraits, including a few moments in the reception ballroom before the guests are seated. We invite you to relax, enjoy cocktails and refreshments, and mingle with family and friends. The reception will begin approximately 1 and a half hours after the ceremony.",
+            Icon = "images/icons/cocktail.png",
+            Time = new DateTime(2026, 10, 8, 17, 0, 0)
+        },
+        new TimelineItemDTO {
+            Title = "Grand Entrance",
+            Description = "Let’s welcome the newlyweds as they make their grand entrance.",
+            Icon = "images/icons/wedding.png",
+            Time = new DateTime(2026, 10, 8, 18, 30, 0)
+        },
+        new TimelineItemDTO {
+            Title = "Dinner",
+            Description = "A delightful dinner awaits. Let’s celebrate, dine, and enjoy the evening together.",
+            Icon = "images/icons/dinning-table.png",
+            Time = new DateTime(2026, 10, 8, 19, 0, 0)
+        },
+        new TimelineItemDTO {
+            Title = "Messages",
+            Description = "A heartfelt moment to express our gratitude to everyone who has been part of our journey, shared in our joy, and extended their love and support along the way.",
+            Icon = "images/icons/microphone.png",
+            Time = new DateTime(2026, 10, 8, 20, 0, 0)
+        },
+        new TimelineItemDTO {
+            Title = "Send off",
+            Description = "End the celebration with love, joy, and a beautiful send-off for the newlyweds.",
+            Icon = "images/icons/car.png",
+            Time = new DateTime(2026, 10, 8, 21, 0, 0)
+        }
+    };
+}

@@ -1,0 +1,106 @@
+@if (isLeft)
+{
+    <!-- LEFT ITEM -->
+    <div class="flex w-full justify-start
+                !pl-8
+                md:col-start-1 md:row-start-1
+                md:justify-end md:!pl-0">
+
+        <div class="w-full max-w-md rounded-2xl bg-white !p-6 shadow-lg">
+
+            <!-- Mobile: same one-sided layout as the right item -->
+            <div class="flex md:hidden w-full flex-row items-center justify-start">
+
+                <img src="@item.Icon"
+                     alt="@item.Title"
+                     class="!mr-8 h-12 w-12 shrink-0 object-contain" />
+
+                <div>
+                    <h3 class="!m-0 !text-[13px] !font-bold !text-[#550b14]">
+                        @item.Time.ToString("hh:mm tt")
+                    </h3>
+                    <h3 class="!m-0 !text-[13px] !text-[#550b14]">
+                        @item.Title
+                    </h3>
+                    <p class="!m-0 !text-[13px] !font-light !text-black">
+                        @item.Description
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- Desktop: your original mirrored layout, unchanged -->
+            <div class="hidden md:flex w-full flex-row items-center justify-end">
+
+                <div class="flex flex-col items-end justify-center">
+                    <h3 class="!m-0 !text-[13px] !font-bold !text-[#550b14]">
+                        @item.Time.ToString("hh:mm tt")
+                    </h3>
+                    <h3 class="!m-0 !text-[13px] !text-[#550b14]">
+                        @item.Title
+                    </h3>
+                    <p class="!m-0 !text-right !text-[13px] !font-light !text-black">
+                        @item.Description
+                    </p>
+                </div>
+
+                <img src="@item.Icon"
+                     alt="@item.Title"
+                     class="!ml-8 h-12 w-12 shrink-0 object-contain" />
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- RIGHT EMPTY - hidden on mobile -->
+    <div class="hidden md:block md:col-start-2 md:row-start-1">
+    </div>
+}
+else
+{
+    <!-- LEFT EMPTY - hidden on mobile -->
+    <div class="hidden md:block md:col-start-1 md:row-start-1">
+    </div>
+
+    <!-- RIGHT ITEM -->
+    <div class="flex w-full justify-start
+                !pl-8
+                md:col-start-2 md:row-start-1 md:!pl-0">
+
+        <div class="flex w-full max-w-md flex-row items-center justify-start
+                    rounded-2xl bg-white !p-6 shadow-lg">
+
+            <img src="@item.Icon"
+                 alt="@item.Title"
+                 class="!mr-8 h-12 w-12 shrink-0 object-contain" />
+
+            <div>
+
+                <h3 class="!m-0 !text-[13px] !font-bold !text-[#550b14]">
+                    @item.Time.ToString("hh:mm tt")
+                </h3>
+
+                <h3 class="!m-0 !text-[13px] !text-[#550b14]">
+                    @item.Title
+                </h3>
+
+                <p class="!m-0 !text-[13px] !font-light !text-black">
+                    @item.Description
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+}
+
+@code {
+    [Parameter]
+    public TimelineItemDTO item { get; set; } = new();
+
+    [Parameter]
+    public bool isLeft { get; set; }
+}
