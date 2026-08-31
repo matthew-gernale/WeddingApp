@@ -34,6 +34,7 @@
 		<Using Include="WeddingApp.Shared.DTO.GDriveDTOs" />
 		<Using Include="WeddingApp.Shared.Enum" />
 		<Using Include="WeddingApp.Shared.DTO.DressCodeDTOs" />
+		<Using Include="WeddingApp.Shared.DTO.GuestDTOs" />
 	</ItemGroup>
 
 
