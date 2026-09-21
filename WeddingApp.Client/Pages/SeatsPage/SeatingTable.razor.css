@@ -1,0 +1,104 @@
+.seating-table {
+    z-index: 2;
+}
+
+.seating-table__card {
+    box-sizing: border-box;
+    width: min(100%, clamp(3.6rem, 7cqw, 5.4rem));
+    height: clamp(4.35rem, 8.8cqw, 6.6rem);
+    border: 1px solid #2f2a2b;
+    background: #fffdfb;
+    color: #201718;
+    overflow: hidden;
+}
+
+.seating-table__card--front {
+    width: min(100%, clamp(3.2rem, 5cqw, 4rem));
+    height: clamp(2.3rem, 3.6cqw, 2.9rem);
+    border-color: #550b14;
+}
+
+.seating-table__card--presidential {
+    width: min(100%, clamp(6rem, 14cqw, 10rem));
+    height: clamp(3.55rem, 5.9cqw, 4.65rem);
+}
+
+.seating-table__card--selected {
+    z-index: 4;
+    border: 2px solid #550b14;
+    background: #fbe2e5;
+    color: #550b14;
+}
+
+.seating-table__content {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.18rem;
+    width: 100%;
+    height: 100%;
+    padding: 0.55rem 0.45rem;
+}
+
+.seating-table__label,
+.seating-table__selected-label {
+    margin: 0;
+    font-size: clamp(0.42rem, 0.86cqw, 0.58rem) !important;
+    line-height: 1.15;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+}
+
+.seating-table__name {
+    margin: 0;
+    font-size: clamp(0.7rem, 1.18cqw, 0.92rem) !important;
+    line-height: 1.12;
+    color: inherit !important;
+}
+
+.seating-table__card--front .seating-table__name {
+    margin-top: 0 !important;
+    font-size: clamp(0.58rem, 1.05cqw, 0.78rem) !important;
+}
+
+.seating-table__card--presidential .seating-table__name {
+    font-size: clamp(0.62rem, 1.1cqw, 0.86rem) !important;
+    white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+    .seating-table__card {
+        width: 100%;
+        height: 4.6rem;
+    }
+
+    .seating-table__card--front {
+        height: 2.55rem;
+    }
+
+    .seating-table__card--presidential {
+        height: 3.4rem;
+    }
+
+    .seating-table__content {
+        gap: 0.12rem;
+        padding: 0.42rem 0.3rem;
+    }
+
+    .seating-table__label,
+    .seating-table__selected-label {
+        font-size: 0.48rem !important;
+        letter-spacing: 0.06em;
+    }
+
+    .seating-table__name {
+        font-size: 0.64rem !important;
+    }
+
+    .seating-table__card--front .seating-table__name,
+    .seating-table__card--presidential .seating-table__name {
+        font-size: 0.56rem !important;
+    }
+}

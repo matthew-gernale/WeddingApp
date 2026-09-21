@@ -1,0 +1,91 @@
+
+
+<div
+    class="seating-table flex flex-col items-center transition-all duration-500">
+
+    <div class="
+        seating-table__card
+        @(IsHeadTable ? "seating-table__card--front" : "")
+        @(IsPresidentialTable ? "seating-table__card--presidential" : "")
+        @(IsSelected ? "seating-table__card--selected" : "")
+        relative
+        flex
+        items-center
+        justify-center
+        rounded-lg
+        transition-all
+        duration-500
+    ">
+
+        <div class="seating-table__content text-center">
+
+            @if (!IsHeadTable)
+            {
+                <p class="
+                    seating-table__label
+                    uppercase
+                    @(IsSelected
+                        ? "!text-[#550b14]"
+                        : "!text-gray-400")
+                ">
+                    @CapacityLabel
+                </p>
+            }
+
+            <p class="
+                seating-table__name
+                !font-semibold
+                @(IsSelected
+                    ? "!text-[#550b14]"
+                    : IsHeadTable
+                        ? "!text-[#550b14]"
+                        : "!text-gray-500")
+            ">
+                @DisplayName
+            </p>
+
+            @if (IsSelected)
+            {
+                <p class="
+                    seating-table__selected-label
+                    !font-medium
+                    uppercase
+                    !text-[#550b14]
+                ">
+                    Your Table
+                </p>
+            }
+
+        </div>
+    </div>
+
+</div>
+
+@code {
+
+    [Parameter, EditorRequired]
+    public WeddingTableDTO Table { get; set; } = default!;
+
+    [Parameter]
+    public string? SelectedTableNumber { get; set; }
+
+    private bool IsSelected =>
+        !string.IsNullOrEmpty(SelectedTableNumber) &&
+        SelectedTableNumber.Equals(Table.TableNumber, StringComparison.OrdinalIgnoreCase);
+
+    private bool IsHeadTable =>
+        Table.TableNumber.Equals("GROOM", StringComparison.OrdinalIgnoreCase) ||
+        Table.TableNumber.Equals("BRIDE", StringComparison.OrdinalIgnoreCase);
+
+    private bool IsPresidentialTable =>
+        Table.TableNumber.StartsWith("PT", StringComparison.OrdinalIgnoreCase);
+
+    private string CapacityLabel => IsPresidentialTable
+        ? $"{Table.SeatCount} seats"
+        : $"{Table.SeatCount} pax";
+
+    private string DisplayName => IsPresidentialTable
+        ? Table.TableNumber.Replace("PT", "Presidential", StringComparison.OrdinalIgnoreCase)
+        : Table.TableNumber;
+
+}

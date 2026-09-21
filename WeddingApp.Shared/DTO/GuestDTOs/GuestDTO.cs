@@ -5,7 +5,7 @@ namespace WeddingApp.Shared.DTO.GuestDTOs
     {
         public string Name { get; set; } = string.Empty;
 
-        public int TableNumber { get; set; }
+        public string TableNumber { get; set; } = string.Empty;
 
         public Roles Role { get; set; }
     }

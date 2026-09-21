@@ -3,7 +3,7 @@ namespace WeddingApp.Shared.DTO.GuestDTOs
 {
     public class WeddingTableDTO
     {
-        public int TableNumber { get; set; }
+        public string TableNumber { get; set; } = string.Empty;
 
         public double X { get; set; }
 

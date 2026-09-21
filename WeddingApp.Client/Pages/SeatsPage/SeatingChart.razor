@@ -1,0 +1,86 @@
+
+<div class="seating-chart">
+
+    <div class="
+        seating-chart__board
+        relative
+    ">
+
+        <div class="
+            seating-chart__dance-floor
+            flex
+            items-center
+            justify-center
+            text-center
+        ">
+            <p class="
+                !text-xs
+                !font-semibold
+                uppercase
+                tracking-[0.24em]
+                !text-[#550b14]
+            ">
+                Dance Floor
+            </p>
+        </div>
+
+        @foreach (var table in Tables)
+        {
+            <div class="
+                seating-chart__table-layer
+                @GetTablePositionClass(table.TableNumber)
+                transition-all
+                duration-500
+                @((HasSelection && !IsSelectedTable(table.TableNumber))
+                    ? "opacity-40"
+                    : "opacity-100")
+            ">
+
+                <SeatingTable
+                    Table="table"
+                    SelectedTableNumber="@SelectedTableNumber" />
+
+            </div>
+        }
+
+    </div>
+
+</div>
+
+@code {
+
+    [Parameter]
+    public List<WeddingTableDTO> Tables { get; set; } = new();
+
+    [Parameter]
+    public string? SelectedTableNumber { get; set; }
+
+    private bool HasSelection => !string.IsNullOrEmpty(SelectedTableNumber);
+
+    private bool IsSelectedTable(string tableNumber)
+    {
+        return !string.IsNullOrEmpty(SelectedTableNumber) &&
+               SelectedTableNumber.Equals(tableNumber, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string GetTablePositionClass(string tableNumber)
+    {
+        return tableNumber.ToUpperInvariant() switch
+        {
+            "GROOM" => "seating-chart__table-layer--groom",
+            "BRIDE" => "seating-chart__table-layer--bride",
+            "PT 1" => "seating-chart__table-layer--pt1",
+            "PT 2" => "seating-chart__table-layer--pt2",
+            "TABLE 1" => "seating-chart__table-layer--table1",
+            "TABLE 2" => "seating-chart__table-layer--table2",
+            "TABLE 3" => "seating-chart__table-layer--table3",
+            "TABLE 4" => "seating-chart__table-layer--table4",
+            "TABLE 5" => "seating-chart__table-layer--table5",
+            "TABLE 6" => "seating-chart__table-layer--table6",
+            "TABLE 7" => "seating-chart__table-layer--table7",
+            "TABLE 8" => "seating-chart__table-layer--table8",
+            "TABLE 9" => "seating-chart__table-layer--table9",
+            _ => string.Empty
+        };
+    }
+}

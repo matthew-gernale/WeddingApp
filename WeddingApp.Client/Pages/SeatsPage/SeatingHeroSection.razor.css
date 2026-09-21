@@ -1,0 +1,17 @@
+.seating-hero {
+    padding-inline: 1.5rem;
+}
+
+.seating-hero__content {
+    padding-inline: 1.25rem;
+}
+
+@media (max-width: 640px) {
+    .seating-hero {
+        padding-inline: 0.75rem;
+    }
+
+    .seating-hero__content {
+        padding-inline: 0;
+    }
+}

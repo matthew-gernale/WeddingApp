@@ -1,0 +1,1263 @@
+
+<section id="entourage-section"
+         class="seating-hero relative w-full min-h-screen flex items-center justify-center z-1 !py-16">
+
+    <!-- Dotted edges -->
+    <div class="bg-dotted-pattern-edges pointer-events-none absolute inset-0"></div>
+
+    <div class="seating-hero__content !mx-auto w-full max-w-6xl !py-12">
+
+        @* ======================================== *@
+        @* HEADER *@
+        @* ======================================== *@
+
+        <div class="text-center">
+
+            <p class="
+                !text-xs
+                uppercase
+                tracking-[0.35em]
+                !text-[#550b14]
+            ">
+                Reception
+            </p>
+
+            <h1 class="page-title
+            ">
+                Find Your Seat
+            </h1>
+
+            <p class="
+                !mx-auto
+                !mt-4
+                max-w-lg
+                !text-sm
+                leading-relaxed
+                !text-gray-500
+            ">
+                Search your name below to find your assigned table.
+            </p>
+
+        </div>
+
+
+        @* ======================================== *@
+        @* SEARCH *@
+        @* ======================================== *@
+
+        <div class="mx-auto !mt-10 w-full">
+
+            <div class="
+                flex
+                overflow-hidden
+                rounded-xl
+                border
+                border-gray-200
+                bg-white
+                shadow-sm
+                transition-all
+                duration-300
+                focus-within:border-[#550b14]
+            ">
+
+                <input
+                    @bind="searchText"
+                    @bind:event="oninput"
+                    @onkeydown="HandleKeyDown"
+                    type="text"
+                    autocomplete="off"
+                    placeholder="Enter your name..."
+                    class="
+                        min-w-0
+                        flex-1
+                        border-0
+                        bg-transparent
+                        !px-6
+                        !py-4
+                        text-sm
+                        text-gray-700
+                        outline-none
+                        placeholder:text-gray-400
+                        focus:ring-0
+                    " />
+
+                <button
+                    @onclick="FindGuest"
+                    class="
+                        !m-1
+                        rounded-xl
+                        bg-[#550b14]
+                        !px-6
+                        text-sm
+                        font-medium
+                        text-white
+                        transition-all
+                        duration-300
+                        hover:bg-[#6b101c]
+                        active:scale-95
+                    ">
+                    Search
+                </button>
+
+            </div>
+
+            @if (showNoResult)
+            {
+                <p class="
+                    !mt-4
+                    text-center
+                    !text-sm
+                    !text-gray-500
+                ">
+                    We couldn't find a guest with that name.
+                    Please try again.
+                </p>
+            }
+
+        </div>
+
+
+        @* ======================================== *@
+        @* GUEST RESULT *@
+        @* ======================================== *@
+
+        @if (selectedGuest != null)
+        {
+            <div class="!mx-auto !mt-10 max-w-xl">
+
+                <div class="
+                    rounded-3xl
+                    border
+                    border-[#550b14]/10
+                    bg-white
+                    !p-8
+                    text-center
+                    shadow-sm
+                ">
+
+                    <p class="
+                        !text-xs
+                        uppercase
+                        tracking-[0.3em]
+                        !text-gray-400
+                    ">
+                        Welcome
+                    </p>
+
+                    <h2 class="
+                        !mt-2
+                        !text-3xl
+                        !text-[#550b14]
+                    ">
+                        @selectedGuest.Name
+                    </h2>
+
+
+                    @* Role *@
+
+                    <div class="!mt-5">
+
+                        <span class="
+                            inline-flex
+                            rounded-full
+                            bg-[#fbe2e5]
+                            !px-4
+                            !py-1.5
+                            !text-[10px]
+                            !font-semibold
+                            uppercase
+                            tracking-[0.18em]
+                            !text-[#550b14]
+                        ">
+                            @GetRoleDisplayName(selectedGuest.Role)
+                        </span>
+
+                    </div>
+
+
+                    @* Table *@
+
+                    <div class="!mt-7">
+
+                        <p class="
+                            !text-xs
+                            uppercase
+                            tracking-[0.25em]
+                            !text-gray-400
+                        ">
+                            Your Table
+                        </p>
+
+                        <p class="
+                            !mt-1
+                            !text-5xl
+                            !font-semibold
+                            !text-[#550b14]
+                        ">
+                            @selectedGuest.TableNumber
+                        </p>
+
+                    </div>
+
+
+                    <div class="
+                        !mx-auto
+                        !mt-6
+                        h-px
+                        max-w-xs
+                        bg-gray-100
+                    ">
+                    </div>
+
+
+                    <p class="
+                        !mt-5
+                        !text-sm
+                        leading-relaxed
+                        !text-gray-500
+                    ">
+                        You may sit anywhere at your assigned table.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+        }
+
+
+        <!--
+
+        @* ======================================== *@
+        @* SEATING MAP *@
+        @* ======================================== *@
+
+        <div class="!mt-16">
+
+            <div class="text-center">
+
+                <p class="
+                    !text-xs
+                    uppercase
+                    tracking-[0.3em]
+                    !text-gray-400
+                ">
+                    Reception
+                </p>
+
+                <h2 class="
+                    !mt-2
+                    !text-2xl
+                    !text-[#550b14]
+                ">
+                    Seating Arrangement
+                </h2>
+
+                <p class="
+                    !mt-2
+                    !text-sm
+                    !text-gray-400
+                ">
+                    @(selectedGuest == null
+                        ? "Search your name to highlight your assigned table."
+                        : "Your assigned table is highlighted.")
+                </p>
+
+            </div>
+
+
+            <div class="!mt-10 overflow-x-auto pb-8">
+
+                <SeatingChart
+                    Tables="tables"
+                    SelectedTableNumber="@selectedGuest?.TableNumber" />
+
+            </div>
+
+        </div>
+-->
+    </div>
+
+</section>
+
+
+@code {
+
+    private string searchText = string.Empty;
+
+    private GuestDTO? selectedGuest;
+
+    private bool showNoResult = false;
+
+
+    // ==========================================
+    // GUEST DATA
+    // ==========================================
+
+    private readonly List<GuestDTO> guests = new()
+    {
+        new GuestDTO
+        {
+            Name = "Matthew Gernale",
+            TableNumber = "GROOM",
+            Role = Roles.GROOM
+        },
+
+        new GuestDTO
+        {
+            Name = "Erika Joyce Gatchalian-Gernale",
+            TableNumber = "BRIDE",
+            Role = Roles.BRIDE
+        },
+
+        new GuestDTO
+        {
+            Name = "Darwin Gernale",
+            TableNumber = "PT 1",
+            Role = Roles.FATHER
+        },
+
+        new GuestDTO
+        {
+            Name = "Priscilla Gernale",
+            TableNumber = "PT 1",
+            Role = Roles.MOTHER
+        },
+
+        new GuestDTO
+        {
+            Name = "Valentin Gatchalian",
+            TableNumber = "PT 2",
+            Role = Roles.FATHER
+        },
+
+        new GuestDTO
+        {
+            Name = "Editha Gatchalian",
+            TableNumber = "PT 2",
+            Role = Roles.MOTHER
+        },
+
+        new GuestDTO
+        {
+            Name = "Val Joseph Gatchalian",
+            TableNumber = "Table 2",
+            Role = Roles.GROOMSMEN
+        },
+
+        new GuestDTO
+        {
+            Name = "Cedrick Gernale",
+            TableNumber = "Table 4",
+            Role = Roles.GROOMSMEN
+        },
+
+        new GuestDTO
+        {
+            Name = "Geraldine Arroyo",
+            TableNumber = "PT 1",
+            Role = Roles.GODMOTHER
+        },
+
+        new GuestDTO
+        {
+            Name = "Jesu Gernale",
+            TableNumber = "PT 1",
+            Role = Roles.GODFATHER
+        },
+
+        new GuestDTO
+        {
+            Name = "Regine Gernale",
+            TableNumber = "PT 1",
+            Role = Roles.GODMOTHER
+        },
+
+        new GuestDTO
+        {
+            Name = "Reynold Mendoza",
+            TableNumber = "PT 1",
+            Role = Roles.GODFATHER
+        },
+        
+        new GuestDTO
+        {
+            Name = "Santiago Malubay, Jr",
+            TableNumber = "PT 1",
+            Role = Roles.GODFATHER
+        },
+        
+        new GuestDTO
+        {
+            Name = "Teresita Cayanan",
+            TableNumber = "PT 1",
+            Role = Roles.GODMOTHER
+        },
+        
+        new GuestDTO
+        {
+            Name = "Vilma Rosales",
+            TableNumber = "PT 1",
+            Role = Roles.GODMOTHER
+        },
+        
+        new GuestDTO
+        {
+            Name = "Zenaida Dela Cruz",
+            TableNumber = "PT 1",
+            Role = Roles.GODMOTHER
+        },
+        
+        new GuestDTO
+        {
+            Name = "Edilberto Cruz Jr.",
+            TableNumber = "PT 2 ",
+            Role = Roles.GODFATHER
+        },
+        
+        new GuestDTO
+        {
+            Name = "Eduardo Viseral Jr.",
+            TableNumber = "PT 2",
+            Role = Roles.GODFATHER
+        },
+        
+        new GuestDTO
+        {
+            Name = "Gina Melquiades",
+            TableNumber = "PT 2",
+            Role = Roles.GODMOTHER
+        },
+        
+        new GuestDTO
+        {
+            Name = "Juanito Cruz",
+            TableNumber = "PT 2",
+            Role = Roles.GODFATHER
+        },
+        
+        new GuestDTO
+        {
+            Name = "Melinda Cruz",
+            TableNumber = "PT 2",
+            Role = Roles.GODMOTHER
+        },
+        
+        new GuestDTO
+        {
+            Name = "Niño Gatchalian",
+            TableNumber = "PT 2",
+            Role = Roles.GODFATHER
+        },
+        
+        new GuestDTO
+        {
+            Name = "Renato Cruz",
+            TableNumber = "PT 2",
+            Role = Roles.GODFATHER
+        },
+        
+        new GuestDTO
+        {
+            Name = "Roseanne Mendoza",
+            TableNumber = "PT 2",
+            Role = Roles.GODMOTHER
+        },
+        
+        new GuestDTO
+        {
+            Name = "Abigail Manabat",
+            TableNumber = "1",
+            Role = Roles.BRIDESMAID
+        },
+        
+        new GuestDTO
+        {
+            Name = "Anne Maric Perez",
+            TableNumber = "1",
+            Role = Roles.BRIDESMAID
+        },
+        
+        new GuestDTO
+        {
+            Name = "Jay Ar Cruz",
+            TableNumber = "1",
+            Role = Roles.GROOMSMEN
+        },
+        
+        new GuestDTO
+        {
+            Name = "Jeremy Sigue",
+            TableNumber = "1",
+            Role = Roles.GROOMSMEN
+        },
+        
+        new GuestDTO
+        {
+            Name = "Jewel Rose Maglipas",
+            TableNumber = "1",
+            Role = Roles.BRIDESMAID
+        },
+        
+        new GuestDTO
+        {
+            Name = "Jovelyn Sison",
+            TableNumber = "1",
+            Role = Roles.BRIDESMAID
+        },
+        
+        new GuestDTO
+        {
+            Name = "Mark Angelo Joaquin",
+            TableNumber = "1",
+            Role = Roles.GROOMSMEN
+        },
+        
+        new GuestDTO
+        {
+            Name = "Michael Manabat",
+            TableNumber = "1",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Reinalyn Dela Rosa",
+            TableNumber = "PT 1",
+            Role = Roles.BRIDESMAID
+        },
+        
+        new GuestDTO
+        {
+            Name = "Shuichi Ikizawa",
+            TableNumber = "1",
+            Role = Roles.GROOMSMEN
+        },
+        
+        new GuestDTO
+        {
+            Name = "Aaron Castillo",
+            TableNumber = "2",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Erica Mae Cruz",
+            TableNumber = "2",
+            Role = Roles.BRIDESMAID
+        },
+        
+        new GuestDTO
+        {
+            Name = "Grachelle Malubay",
+            TableNumber = "2",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Jobelle De Vera",
+            TableNumber = "2",
+            Role = Roles.BRIDESMAID
+        },
+        
+        new GuestDTO
+        {
+            Name = "Liela Teodoro",
+            TableNumber = "2",
+            Role = Roles.BRIDESMAID
+        },
+        
+        new GuestDTO
+        {
+            Name = "Melvin Frias",
+            TableNumber = "2",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Paul Tristan Martillano",
+            TableNumber = "2",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Peejay Teodoro",
+            TableNumber = "2",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Jericka Ombina",
+            TableNumber = "2",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Albel Cruz",
+            TableNumber = "3",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Althea Shaine Cruz",
+            TableNumber = "3",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Bella Cruz",
+            TableNumber = "3",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Ernesto Cruz",
+            TableNumber = "3",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Grace Viseral",
+            TableNumber = "3",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Juanita Paredes",
+            TableNumber = "3",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Mhel Marabe",
+            TableNumber = "3",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Sharmaine Cruz",
+            TableNumber = "3",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Victoria Cruz",
+            TableNumber = "3",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Bhimell Tina",
+            TableNumber = "4",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Cy Diaz",
+            TableNumber = "4",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Dave Villasenor",
+            TableNumber = "4",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Edmarson Tina",
+            TableNumber = "4",
+            Role = Roles.GROOMSMEN
+        },
+        
+        new GuestDTO
+        {
+            Name = "Jr Diaz",
+            TableNumber = "4",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Nissan Tina",
+            TableNumber = "4",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Patricia Tina",
+            TableNumber = "4",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Prince Jude Guevara",
+            TableNumber = "4",
+            Role = Roles.GROOMSMEN
+        },
+        
+        new GuestDTO
+        {
+            Name = "Roma Althea Perez",
+            TableNumber = "4",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Angelito Mala",
+            TableNumber = "5",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Arabelle Mari",
+            TableNumber = "5",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Elaiza Mala",
+            TableNumber = "5",
+            Role = Roles.BRIDESMAID
+        },
+        
+        new GuestDTO
+        {
+            Name = "Emil Cruz",
+            TableNumber = "5",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Erison Cruz",
+            TableNumber = "5",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Jaren Cruz",
+            TableNumber = "5",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Juvy Cruz",
+            TableNumber = "5",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Maye Cruz",
+            TableNumber = "5",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Renmar Erick Cruz",
+            TableNumber = "5",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Abby Gernale",
+            TableNumber = "6",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Cazandra Gernale",
+            TableNumber = "6",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Gabby Gernale",
+            TableNumber = "6",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Gian Gernale",
+            TableNumber = "6",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Hermes Gernale",
+            TableNumber = "6",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Jo Canlas",
+            TableNumber = "6",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Lawrence Venencio",
+            TableNumber = "6",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Mayeth Gulfan Tohay",
+            TableNumber = "6",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Pia Gernale",
+            TableNumber = "6",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Sofia Canlas",
+            TableNumber = "6",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Anabelle Gatchalian",
+            TableNumber = "7",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Angeline Gatchalian",
+            TableNumber = "7",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Crizza Palad-Dela Rosa",
+            TableNumber = "7",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Dave Gatchalian",
+            TableNumber = "7",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Louela Santos",
+            TableNumber = "7",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Lucena Gatchalian",
+            TableNumber = "7",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Marcelino Gatchalian",
+            TableNumber = "7",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Marilyn Dela Rosa",
+            TableNumber = "7",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Ramrell Dela Rosa",
+            TableNumber = "7",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Zernan Gatchalian",
+            TableNumber = "7",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Arvin Guillermo",
+            TableNumber = "8",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Benedick Dela Cruz",
+            TableNumber = "8",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Bette Magpayo",
+            TableNumber = "8",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Christian Mendoza",
+            TableNumber = "8",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Erwin Magpayo",
+            TableNumber = "8",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "James Ignacio",
+            TableNumber = "8",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "John Michael Pineda",
+            TableNumber = "8",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Joshua Abellera",
+            TableNumber = "8",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Quintin Paredes",
+            TableNumber = "8",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Zenaida's Driver",
+            TableNumber = "8",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Antonio Dela Cruz",
+            TableNumber = "9",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Benedict Gumatay",
+            TableNumber = "9",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Jaime Mendoza",
+            TableNumber = "9",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Mariane Santos",
+            TableNumber = "9",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Marilou Santos",
+            TableNumber = "9",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Mark Deniel Melquiades",
+            TableNumber = "9",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Rachelle Ann Gumatay",
+            TableNumber = "9",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Rhian Myka Santos",
+            TableNumber = "9",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Shella Dela Cruz",
+            TableNumber = "9",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Sophia Rioveros-Melquiades",
+            TableNumber = "9",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Bebe Dizon",
+            TableNumber = "10",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Jovy Panaguiton",
+            TableNumber = "10",
+            Role = Roles.GUEST
+        },
+        
+        new GuestDTO
+        {
+            Name = "Vilma Rosales +1",
+            TableNumber = "10",
+            Role = Roles.GUEST
+        }
+    };
+
+
+    // ==========================================
+    // TABLE LAYOUT
+    // ==========================================
+
+    private readonly List<WeddingTableDTO> tables = new()
+    {
+        new WeddingTableDTO
+        {
+            TableNumber = "GROOM",
+            X = 6,
+            Y = 11,
+            SeatCount = 2
+        },
+
+        new WeddingTableDTO
+        {
+            TableNumber = "BRIDE",
+            X = 20,
+            Y = 11,
+            SeatCount = 2
+        },
+
+        new WeddingTableDTO
+        {
+            TableNumber = "PT 1",
+            X = 18,
+            Y = 29,
+            SeatCount = 12
+        },
+
+        new WeddingTableDTO
+        {
+            TableNumber = "PT 2",
+            X = 82,
+            Y = 29,
+            SeatCount = 12
+        },
+
+        new WeddingTableDTO
+        {
+            TableNumber = "Table 1",
+            X = 29,
+            Y = 52,
+            SeatCount = 10
+        },
+
+        new WeddingTableDTO
+        {
+            TableNumber = "Table 2",
+            X = 71,
+            Y = 52,
+            SeatCount = 10
+        },
+
+        new WeddingTableDTO
+        {
+            TableNumber = "Table 3",
+            X = 10,
+            Y = 52,
+            SeatCount = 10
+        },
+
+        new WeddingTableDTO
+        {
+            TableNumber = "Table 4",
+            X = 90,
+            Y = 52,
+            SeatCount = 10
+        },
+
+        new WeddingTableDTO
+        {
+            TableNumber = "Table 5",
+            X = 29,
+            Y = 75,
+            SeatCount = 10
+        },
+
+        new WeddingTableDTO
+        {
+            TableNumber = "Table 6",
+            X = 71,
+            Y = 75,
+            SeatCount = 10
+        },
+
+        new WeddingTableDTO
+        {
+            TableNumber = "Table 7",
+            X = 10,
+            Y = 75,
+            SeatCount = 10
+        },
+
+        new WeddingTableDTO
+        {
+            TableNumber = "Table 8",
+            X = 90,
+            Y = 75,
+            SeatCount = 10
+        },
+
+        new WeddingTableDTO 
+        {
+            TableNumber = "Table 9",
+            X = 50,
+            Y = 88,
+            SeatCount = 10
+        }
+    };
+
+
+    // ==========================================
+    // SEARCH
+    // ==========================================
+
+    private void FindGuest()
+    {
+        showNoResult = false;
+        selectedGuest = null;
+
+        if (string.IsNullOrWhiteSpace(searchText))
+            return;
+
+        var results = guests
+            .Where(guest =>
+                guest.Name.Contains(
+                    searchText.Trim(),
+                    StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        if (results.Count == 0)
+        {
+            showNoResult = true;
+            return;
+        }
+
+        selectedGuest = results.First();
+    }
+
+
+    private void HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") FindGuest();
+    }
+
+
+    // ==========================================
+    // ROLE DISPLAY
+    // ==========================================
+
+    private string GetRoleDisplayName(Roles role)
+    {
+        if (selectedGuest?.Name == "Val Joseph Gatchalian") return "BEST MAN";
+        else if (selectedGuest?.Name == "Abigail Manabat") return "MATRON OF HONOR";
+        else if (selectedGuest?.Name == "Anne Maric Perez") return "MAID OF HONOR";
+
+        return role switch
+        {
+            Roles.GODFATHER or Roles.GODMOTHER => "GOD PARENTS",
+            Roles.GROOMSMEN => "GROOMSMEN",
+            Roles.BRIDESMAID => "BRIDESMAIDS",
+            Roles.FATHER or Roles.MOTHER => "PARENTS",
+            Roles.GROOM => "GROOM",
+            Roles.BRIDE => "BRIDE",
+            Roles.GUEST => "GUEST",
+            _ => "GUEST"
+        };
+    }
+
+}
