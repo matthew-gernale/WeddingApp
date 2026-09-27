@@ -1,3 +1,6 @@
+@inject IGDriveService GDriveService
+@inject IJSRuntime JS
+
 <section id="photo-section" class="bg-white relative w-full min-h-screen flex items-center justify-center z-1 !px-6 !py-16">
 
     <div class="relative z-10 w-full max-w-7xl flex flex-col items-center gap-8">
@@ -16,50 +19,91 @@
 
 
         <!-- Gallery -->
-        <div class="w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-
-            <!-- Example photos -->
-            <div class="aspect-[3/4] overflow-hidden rounded-xl">
-                <img src="https://images.pexels.com/photos/31049062/pexels-photo-31049062.jpeg"
-                     alt="Wedding memory"
-                     class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
+        @if (_isLoading)
+        {
+            <div class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4" aria-busy="true">
+                @for (var i = 0; i < PageSize; i++)
+                {
+                    <div class="aspect-[3/4] rounded-xl bg-gray-200 animate-pulse"></div>
+                }
             </div>
-
-            <div class="aspect-[3/4] overflow-hidden rounded-xl">
-                <img src="https://images.pexels.com/photos/13434437/pexels-photo-13434437.jpeg"
-                     alt="Wedding memory"
-                     class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
+        }
+        else if (_errorMessage is not null)
+        {
+            <div class="flex flex-col items-center gap-3 text-center !py-12">
+                <p class="!text-black !m-0">@_errorMessage</p>
+                <button class="!px-4 !py-2 rounded-full bg-[#550b14] text-white cursor-pointer"
+                        @onclick="() => LoadPage(_currentPage)">
+                    Try again
+                </button>
             </div>
-
-            <div class="aspect-[3/4] overflow-hidden rounded-xl">
-                <img src="https://images.pexels.com/photos/31243106/pexels-photo-31243106.jpeg"
-                     alt="Wedding memory"
-                     class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
+        }
+        else if (_photos.Count == 0)
+        {
+            <div class="flex flex-col items-center text-center !py-12">
+                <p class="!text-black !m-0">No photos have been shared yet. Check back soon!</p>
             </div>
+        }
+        else
+        {
+            <div class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                @for (var i = 0; i < _photos.Count; i++)
+                {
+                    var index = i;
+                    var photo = _photos[index];
 
-            <div class="aspect-[3/4] overflow-hidden rounded-xl">
-                <img src="https://images.pexels.com/photos/8815267/pexels-photo-8815267.jpeg"
-                     alt="Wedding memory"
-                     class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
+                    <button @key="photo.Id"
+                            type="button"
+                            aria-label="View photo in fullscreen"
+                            class="aspect-[3/4] overflow-hidden rounded-xl bg-gray-100 cursor-zoom-in focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#550b14]"
+                            @onclick="() => _viewerIndex = index">
+                        <img src="@photo.ImageUrl"
+                             alt="@(string.IsNullOrWhiteSpace(photo.Name) ? "Wedding memory" : photo.Name)"
+                             loading="lazy"
+                             decoding="async"
+                             class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
+                    </button>
+                }
             </div>
-
-        </div>
+        }
 
 
         <!-- Pagination -->
-        <div class="flex items-center gap-3">
-            <button class="!px-4 !py-2 rounded-full border border-[#550b14] text-[#550b14] cursor-pointer">
-                Previous
-            </button>
+        @if (_errorMessage is null && _pageTokens.Count > 1)
+        {
+            <nav aria-label="Gallery pages" class="flex flex-wrap items-center justify-center gap-2">
+                <button class="!px-4 !py-2 rounded-full border border-[#550b14] text-[#550b14] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled="@(_currentPage <= 1 || _isLoading)"
+                        @onclick="() => GoToPage(_currentPage - 1)">
+                    Previous
+                </button>
 
-            <span class="text-sm text-gray-600">
-                Page 1 of 10
-            </span>
+                @foreach (var page in GetVisiblePages())
+                {
+                    if (page is int pageNumber)
+                    {
+                        var isCurrent = pageNumber == _currentPage;
 
-            <button class="!px-4 !py-2 rounded-full bg-[#550b14] text-white cursor-pointer">
-                Next
-            </button>
-        </div>
+                        <button class="w-10 h-10 rounded-full cursor-pointer transition-colors disabled:cursor-not-allowed @(isCurrent ? "bg-[#550b14] text-white" : "border border-[#550b14] text-[#550b14] hover:bg-[#550b14]/10")"
+                                aria-current="@(isCurrent ? "page" : null)"
+                                disabled="@(isCurrent || _isLoading)"
+                                @onclick="() => GoToPage(pageNumber)">
+                            @pageNumber
+                        </button>
+                    }
+                    else
+                    {
+                        <span class="w-6 text-center text-gray-500 select-none">&hellip;</span>
+                    }
+                }
+
+                <button class="!px-4 !py-2 rounded-full bg-[#550b14] text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled="@(_currentPage >= _pageTokens.Count || _isLoading)"
+                        @onclick="() => GoToPage(_currentPage + 1)">
+                    Next
+                </button>
+            </nav>
+        }
 
 
         <!-- Closing message -->
@@ -78,3 +122,100 @@
 
     <div class="bg-dotted-pattern-edges min-h-screen h-full w-full absolute"></div>
 </section>
+
+@* Rendered outside the section so it isn't trapped in the section's stacking context. *@
+<PhotoLightbox Photos="_photos" @bind-Index="_viewerIndex" />
+
+
+@code {
+    private const int PageSize = 10;
+    private const int PageWindow = 2;
+
+    private List<GFileDTO> _photos = new();
+
+    // Index i holds Google's page token for page i + 1; page 1 has no token.
+    private readonly List<string?> _pageTokens = new() { null };
+    private int _currentPage = 1;
+    private bool _reachedEnd;
+    private bool _isLoading;
+    private string? _errorMessage;
+    private int? _viewerIndex;
+
+    protected override Task OnInitializedAsync() => LoadPage(1);
+
+    private async Task GoToPage(int page)
+    {
+        if (_isLoading || page < 1 || page > _pageTokens.Count || page == _currentPage) return;
+
+        await JS.InvokeVoidAsync("scrollToSection", "photo-section");
+        await LoadPage(page);
+    }
+
+    private async Task LoadPage(int page)
+    {
+        _isLoading = true;
+        _errorMessage = null;
+        _viewerIndex = null;
+        _currentPage = page;
+
+        var result = await GDriveService.GetAllPhotos(new GetPaginatedFileDTO
+        {
+            PageSize = PageSize,
+            PageToken = _pageTokens[page - 1]
+        });
+
+        if (result.IsSuccess && result.Data is not null)
+        {
+            _photos = result.Data.Files;
+            var nextToken = result.Data.NextPageToken;
+
+            if (string.IsNullOrEmpty(nextToken))
+            {
+                _pageTokens.RemoveRange(page, _pageTokens.Count - page);
+                _reachedEnd = true;
+            }
+            else if (_pageTokens.Count == page)
+            {
+                _pageTokens.Add(nextToken);
+                _reachedEnd = false;
+            }
+        }
+        else
+        {
+            _photos = new();
+            _errorMessage = "We couldn't load the photos right now. Please try again.";
+        }
+
+        _isLoading = false;
+    }
+
+    // Null entries render as an ellipsis.
+    private List<int?> GetVisiblePages()
+    {
+        var lastKnownPage = _pageTokens.Count;
+        var start = Math.Max(1, _currentPage - PageWindow);
+        var end = Math.Min(lastKnownPage, _currentPage + PageWindow);
+        var pages = new List<int?>();
+
+        if (start > 1)
+        {
+            pages.Add(1);
+            if (start > 2) pages.Add(null);
+        }
+
+        for (var page = start; page <= end; page++)
+            pages.Add(page);
+
+        if (end < lastKnownPage)
+        {
+            if (end < lastKnownPage - 1) pages.Add(null);
+            pages.Add(lastKnownPage);
+        }
+
+        // Google only reveals one page ahead, so more may exist past the last known page.
+        if (!_reachedEnd)
+            pages.Add(null);
+
+        return pages;
+    }
+}

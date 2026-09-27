@@ -1,0 +1,129 @@
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+@if (Photo is not null)
+{
+    <div @ref="_overlay"
+         tabindex="-1"
+         role="dialog"
+         aria-modal="true"
+         aria-label="Photo viewer"
+         class="lightbox-overlay fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm outline-none"
+         @onclick="Close"
+         @onkeydown="HandleKeyDown"
+         @ontouchstart="HandleTouchStart"
+         @ontouchend="HandleTouchEnd">
+
+        <button type="button"
+                aria-label="Close"
+                class="absolute top-4 right-4 z-10 flex items-center justify-center w-11 h-11 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer"
+                @onclick="Close" @onclick:stopPropagation="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+            </svg>
+        </button>
+
+        @if (Photos.Count > 1)
+        {
+            <button type="button"
+                    aria-label="Previous photo"
+                    class="absolute left-2 sm:left-6 z-10 hidden sm:flex items-center justify-center w-12 h-12 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer"
+                    @onclick="ShowPrevious" @onclick:stopPropagation="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                </svg>
+            </button>
+
+            <button type="button"
+                    aria-label="Next photo"
+                    class="absolute right-2 sm:right-6 z-10 hidden sm:flex items-center justify-center w-12 h-12 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer"
+                    @onclick="ShowNext" @onclick:stopPropagation="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                </svg>
+            </button>
+        }
+
+        <figure class="flex flex-col items-center gap-3 !m-0" @onclick:stopPropagation="true">
+            <img @key="Photo.Id"
+                 src="@Photo.ImageUrl"
+                 alt="@(string.IsNullOrWhiteSpace(Photo.Name) ? "Wedding memory" : Photo.Name)"
+                 draggable="false"
+                 class="lightbox-image max-w-[92vw] max-h-[82vh] object-contain rounded-lg shadow-2xl select-none" />
+
+            @if (Photos.Count > 1)
+            {
+                <figcaption class="text-sm text-white/70 tracking-widest">
+                    @(Index + 1) / @Photos.Count
+                </figcaption>
+            }
+        </figure>
+    </div>
+}
+
+@code {
+    private const double SwipeThreshold = 50;
+
+    [Parameter, EditorRequired] public List<GFileDTO> Photos { get; set; } = new();
+    [Parameter] public int? Index { get; set; }
+    [Parameter] public EventCallback<int?> IndexChanged { get; set; }
+
+    private ElementReference _overlay;
+    private bool _isOpen;
+    private double? _touchStartX;
+
+    private GFileDTO? Photo => Index is int i && i >= 0 && i < Photos.Count ? Photos[i] : null;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (Photo is not null && !_isOpen)
+        {
+            _isOpen = true;
+            await JS.InvokeVoidAsync("setBodyScrollLock", true);
+            await _overlay.FocusAsync();
+        }
+        else if (Photo is null && _isOpen)
+        {
+            _isOpen = false;
+            await JS.InvokeVoidAsync("setBodyScrollLock", false);
+        }
+    }
+
+    private Task Close() => IndexChanged.InvokeAsync(null);
+
+    private Task ShowPrevious() => IndexChanged.InvokeAsync(((Index ?? 0) - 1 + Photos.Count) % Photos.Count);
+
+    private Task ShowNext() => IndexChanged.InvokeAsync(((Index ?? 0) + 1) % Photos.Count);
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        switch (e.Key)
+        {
+            case "Escape": await Close(); break;
+            case "ArrowLeft": await ShowPrevious(); break;
+            case "ArrowRight": await ShowNext(); break;
+        }
+    }
+
+    private void HandleTouchStart(TouchEventArgs e)
+    {
+        _touchStartX = e.ChangedTouches.Length > 0 ? e.ChangedTouches[0].ClientX : null;
+    }
+
+    private async Task HandleTouchEnd(TouchEventArgs e)
+    {
+        if (_touchStartX is not double startX || e.ChangedTouches.Length == 0 || Photos.Count < 2) return;
+
+        var deltaX = e.ChangedTouches[0].ClientX - startX;
+        _touchStartX = null;
+
+        if (deltaX > SwipeThreshold) await ShowPrevious();
+        else if (deltaX < -SwipeThreshold) await ShowNext();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_isOpen)
+            await JS.InvokeVoidAsync("setBodyScrollLock", false);
+    }
+}

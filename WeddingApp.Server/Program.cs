@@ -7,13 +7,16 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowedOrigins", policy =>
     {
         policy
-              .WithOrigins("https://www.thegernales.com", "https://thegernales.com")
+              .WithOrigins("https://www.thegernales.com",
+                           "https://thegernales.com",
+                           "https://localhost:7236")
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();
     });
 });
 
+builder.Services.AddMemoryCache();
 builder.Services.AddHttpClient<IGDriveRepository, GDriveRepository>();
 
 builder.Services.AddControllers();
