@@ -93,7 +93,7 @@ namespace WeddingApp.Server.Repository.GDriveRepo
             try
             {
                 var query = $"'{folderId}' in parents and mimeType contains 'image/' and mimeType != '{SvgMimeType}' and trashed = false";
-
+                 
                 var url = $"{DriveFilesUrl}?q={Uri.EscapeDataString(query)}" +
                           $"&pageSize={request.PageSize}" +
                           $"&orderBy={Uri.EscapeDataString(request.OrderBy)}" +
