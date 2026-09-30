@@ -10,8 +10,21 @@
 
         <p class="!text-black text-center !m-0 !pt-[30px]">See something we missed?</p>
         
-        <button class="animated-btn red-btn">
+        <button class="animated-btn red-btn" @onclick="OpenCamera">
             Capture a moment
         </button>
     </div>
 </section>
+
+<CameraModal @ref="_cameraModal" OnUploaded="OnUploaded" />
+
+@code {
+    [Parameter] public EventCallback<GFileDTO> OnUploaded { get; set; }
+
+    private CameraModal? _cameraModal;
+
+    private async Task OpenCamera()
+    {
+        if (_cameraModal is not null) await _cameraModal.Open();
+    }
+}

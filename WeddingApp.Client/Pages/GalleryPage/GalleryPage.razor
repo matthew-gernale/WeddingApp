@@ -2,6 +2,15 @@
 <PageTitle>Through your eyes</PageTitle>
 
 <div class="w-full overflow-x-hidden">
-    <GalleryHeroSection />
-    <PhotoSection />
+    <GalleryHeroSection OnUploaded="RefreshGallery" />
+    <PhotoSection @ref="_photoSection" />
 </div>
+
+@code {
+    private PhotoSection? _photoSection;
+
+    private async Task RefreshGallery(GFileDTO uploadedPhoto)
+    {
+        if (_photoSection is not null) await _photoSection.Refresh(uploadedPhoto);
+    }
+}

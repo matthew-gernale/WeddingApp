@@ -143,6 +143,20 @@
 
     protected override Task OnInitializedAsync() => LoadPage(1);
 
+    public async Task Refresh(GFileDTO uploadedPhoto)
+    {
+        _pageTokens.Clear();
+        _pageTokens.Add(null);
+        await LoadPage(1);
+        if (_errorMessage is null && _photos.All(photo => photo.Id != uploadedPhoto.Id))
+        {
+            _photos.Insert(0, uploadedPhoto);
+            if (_photos.Count > PageSize) _photos.RemoveAt(PageSize);
+        }
+        await InvokeAsync(StateHasChanged);
+        await JS.InvokeVoidAsync("scrollToSection", "photo-section");
+    }
+
     private async Task GoToPage(int page)
     {
         if (_isLoading || page < 1 || page > _pageTokens.Count || page == _currentPage) return;
@@ -161,7 +175,8 @@
         var result = await GDriveService.GetAllPhotos(new GetPaginatedFileDTO
         {
             PageSize = PageSize,
-            PageToken = _pageTokens[page - 1]
+            PageToken = _pageTokens[page - 1],
+            OrderBy = "createdTime desc"
         });
 
         if (result.IsSuccess && result.Data is not null)

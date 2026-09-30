@@ -1,0 +1,297 @@
+@inject IGDriveService GDriveService
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+@if (_isOpen)
+{
+        <div @ref="_dialog" tabindex="-1" role="dialog" aria-modal="true" aria-label="Share a photo"
+            class="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm @(_cameraActive || _fileBytes is not null ? "!p-0 sm:!px-4" : "!px-4")"
+         @onclick="Close" @onkeydown="HandleKeyDown">
+           <div class="relative flex w-full flex-col gap-5 bg-white !p-5 shadow-2xl sm:max-w-lg sm:rounded-lg sm:!p-8 @(_cameraActive || _fileBytes is not null ? "h-[100dvh] sm:h-auto" : "max-w-lg rounded-lg")"
+             @onclick:stopPropagation="true">
+            <button type="button" title="Close" aria-label="Close" disabled="@_isUploading"
+                    class="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full text-2xl text-[#550b14] hover:bg-[#550b14]/10 cursor-pointer disabled:opacity-50"
+                    @onclick="Close">&times;</button>
+
+            <div class="text-center !pr-6">
+                <h2 class="!m-0 font-['Cinzel_Decorative'] !text-[24px] !text-[#550b14]">Capture a moment</h2>
+                <p class="!m-0 !mt-2 !text-[14px] !text-[#6B7369]">Share a photo from our day.</p>
+            </div>
+
+            <div class="relative flex w-full items-center justify-center overflow-hidden rounded-lg bg-black @(_cameraActive || _fileBytes is not null ? "min-h-0 flex-1 sm:aspect-[4/3] sm:flex-none" : "aspect-[4/3]")">
+                @if (_preview is not null)
+                {
+                    <img src="@_preview" alt="Photo ready to share" class="h-full w-full object-contain" />
+                }
+                else if (_cameraActive)
+                {
+                    <video @ref="_video" autoplay playsinline muted class="h-full w-full object-contain @(_facingMode == "user" ? "-scale-x-100" : "")"></video>
+                }
+                else
+                {
+                    <p class="!m-0 !px-5 text-center !text-[14px] !text-[#6B7369]">
+                        @(_fileBytes is null ? "Choose your camera or a photo from your device." : $"Ready to share: {_fileName}")
+                    </p>
+                }
+            </div>
+
+            @if (_error is not null)
+            {
+                <p role="alert" class="!m-0 text-center !text-[13px] !text-red-700">@_error</p>
+            }
+            else if (_isPreviewing)
+            {
+                <p role="status" class="!m-0 text-center !text-[13px] !text-[#550b14]">Preparing preview...</p>
+            }
+
+            <div class="flex flex-wrap items-center justify-center gap-3">
+                @if (_cameraActive)
+                {
+                    <button type="button" class="animated-btn red-btn" @onclick="TakePhoto">Take photo</button>
+                        <button type="button" title="Switch camera" aria-label="Switch camera"
+                            class="flex h-11 w-11 items-center justify-center rounded-full border border-[#550b14] text-[#550b14] cursor-pointer"
+                            @onclick="SwitchCamera">&#x21bb;</button>
+                    <label class="!px-4 !py-2 rounded-lg border border-[#550b14] !text-[#550b14] cursor-pointer" for="gallery-photo-file">Choose photo</label>
+                }
+                else if (_fileBytes is not null)
+                {
+                    <button type="button" class="!px-4 !py-2 rounded-lg border border-[#550b14] !text-[#550b14] cursor-pointer disabled:opacity-50"
+                            disabled="@_isUploading" @onclick="Retake">Retake</button>
+                    <label class="!px-4 !py-2 rounded-lg border border-[#550b14] !text-[#550b14] cursor-pointer" for="gallery-photo-file">Change photo</label>
+                    <button type="button" class="animated-btn red-btn disabled:opacity-50" disabled="@(_isUploading || _isPreviewing)" @onclick="Upload">
+                        @(_isUploading ? "Uploading..." : "Upload photo")
+                    </button>
+                }
+                else
+                {
+                    <button type="button" class="!px-4 !py-2 rounded-lg border border-[#550b14] !text-[#550b14] cursor-pointer"
+                            @onclick="StartCamera">Use camera</button>
+                    <label class="animated-btn red-btn cursor-pointer" for="gallery-photo-file">Choose photo</label>
+                }
+            </div>
+
+            <InputFile id="gallery-photo-file" OnChange="ChooseFile" accept="image/*,.heic,.heif,.tif,.tiff,.bmp" class="sr-only" />
+            <p class="!m-0 text-center !text-[12px] !text-[#6B7369]">JPEG, PNG, GIF, WebP, HEIC and more. Maximum 10 MB.</p>
+        </div>
+    </div>
+}
+
+@code {
+    private const int MaxPhotoBytes = 10 * 1024 * 1024;
+
+    [Parameter] public EventCallback<GFileDTO> OnUploaded { get; set; }
+
+    private ElementReference _dialog;
+    private ElementReference _video;
+    private bool _isOpen;
+    private bool _cameraActive;
+    private bool _startCamera;
+    private bool _focusDialog;
+    private bool _isUploading;
+    private bool _isPreviewing;
+    private int _previewVersion;
+    private string _facingMode = "environment";
+    private string? _error;
+    private string? _preview;
+    private string? _fileName;
+    private byte[]? _fileBytes;
+
+    public async Task Open()
+    {
+        _isOpen = true;
+        _error = null;
+        _focusDialog = true;
+        await JS.InvokeVoidAsync("setBodyScrollLock", true);
+        StateHasChanged();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_isOpen && _focusDialog)
+        {
+            _focusDialog = false;
+            await _dialog.FocusAsync();
+        }
+
+        if (_startCamera)
+        {
+            _startCamera = false;
+            if (!await JS.InvokeAsync<bool>("startGalleryCamera", _video, _facingMode))
+            {
+                _cameraActive = false;
+                _error = "Camera unavailable. You can choose a photo from your device instead.";
+                StateHasChanged();
+            }
+        }
+    }
+
+    private Task StartCamera()
+    {
+        _error = null;
+        _cameraActive = true;
+        _startCamera = true;
+        return Task.CompletedTask;
+    }
+
+    private async Task SwitchCamera()
+    {
+        var nextMode = _facingMode == "environment" ? "user" : "environment";
+        if (await JS.InvokeAsync<bool>("switchGalleryCamera", _video, nextMode, _facingMode))
+        {
+            _facingMode = nextMode;
+            _error = null;
+        }
+        else
+        {
+            _error = "Could not switch cameras. Please try again.";
+        }
+    }
+
+    private async Task TakePhoto()
+    {
+        try
+        {
+            var dataUrl = await JS.InvokeAsync<string>("captureGalleryPhoto", _video, _facingMode == "user");
+            var bytes = Convert.FromBase64String(dataUrl[(dataUrl.IndexOf(',') + 1)..]);
+            if (bytes.Length > MaxPhotoBytes)
+            {
+                _error = "Photo is larger than 10 MB. Try choosing another photo.";
+                return;
+            }
+            _fileBytes = bytes;
+            _fileName = $"wedding-photo-{DateTime.UtcNow:yyyyMMdd-HHmmss}.jpg";
+            _preview = dataUrl;
+            await StopCamera();
+        }
+        catch (Exception)
+        {
+            _error = "Could not capture a photo. Please try again.";
+        }
+    }
+
+    private async Task ChooseFile(InputFileChangeEventArgs args)
+    {
+        var version = ++_previewVersion;
+        _error = null;
+        var file = args.File;
+        if (file.Size == 0 || file.Size > MaxPhotoBytes)
+        {
+            _error = "Choose a photo smaller than 10 MB.";
+            return;
+        }
+
+        await StopCamera();
+        _fileBytes = null;
+        _fileName = null;
+        _preview = null;
+        try
+        {
+            using var stream = file.OpenReadStream(MaxPhotoBytes);
+            using var memory = new MemoryStream();
+            await stream.CopyToAsync(memory);
+            _fileBytes = memory.ToArray();
+            _fileName = file.Name;
+            var previewMimeType = Path.GetExtension(file.Name).ToLowerInvariant() switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".gif" => "image/gif",
+                ".webp" => "image/webp",
+                _ => null
+            };
+            if (previewMimeType is not null)
+            {
+                _preview = $"data:{previewMimeType};base64,{Convert.ToBase64String(_fileBytes)}";
+            }
+            else
+            {
+                _preview = null;
+                _isPreviewing = true;
+                StateHasChanged();
+                var result = await GDriveService.PreviewPhoto(_fileBytes, file.Name);
+                if (!_isOpen || version != _previewVersion) return;
+
+                if (result.IsSuccess && result.Data is not null)
+                    _preview = $"data:{result.Data.MimeType};base64,{Convert.ToBase64String(result.Data.Content)}";
+                else
+                {
+                    _fileBytes = null;
+                    _fileName = null;
+                    _error = result.ErrorMessage;
+                }
+                _isPreviewing = false;
+            }
+        }
+        catch (Exception)
+        {
+            _error = "Could not read this photo. Please try another.";
+        }
+    }
+
+    private async Task Upload()
+    {
+        if (_fileBytes is null || _fileName is null || _isUploading || _isPreviewing) return;
+
+        _isUploading = true;
+        _error = null;
+        try
+        {
+            var result = await GDriveService.UploadPhoto(_fileBytes, _fileName);
+            if (!result.IsSuccess)
+            {
+                _error = string.IsNullOrEmpty(result.ErrorMessage) ? "Upload failed. Please try again." : result.ErrorMessage;
+                return;
+            }
+
+            _isUploading = false;
+            await Close();
+            if (result.Data is not null)
+                await OnUploaded.InvokeAsync(result.Data);
+        }
+        finally
+        {
+            _isUploading = false;
+        }
+    }
+
+    private async Task Retake()
+    {
+        _fileBytes = null;
+        _fileName = null;
+        _preview = null;
+        _error = null;
+        await StartCamera();
+    }
+
+    private async Task StopCamera()
+    {
+        if (_cameraActive)
+            await JS.InvokeVoidAsync("stopGalleryCamera", _video);
+        _cameraActive = false;
+    }
+
+    private async Task Close()
+    {
+        if (_isUploading) return;
+        _previewVersion++;
+        await StopCamera();
+        _isOpen = false;
+        _isPreviewing = false;
+        _fileBytes = null;
+        _fileName = null;
+        _preview = null;
+        _error = null;
+        await JS.InvokeVoidAsync("setBodyScrollLock", false);
+    }
+
+    private Task HandleKeyDown(KeyboardEventArgs args) => args.Key == "Escape" ? Close() : Task.CompletedTask;
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_isOpen)
+        {
+            await StopCamera();
+            await JS.InvokeVoidAsync("setBodyScrollLock", false);
+        }
+    }
+}

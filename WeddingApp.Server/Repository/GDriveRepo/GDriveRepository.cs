@@ -1,5 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.Extensions.Caching.Memory;
+using ImageMagick;
+using System.Net.Http.Json;
 
 namespace WeddingApp.Server.Repository.GDriveRepo
 {
@@ -9,6 +11,7 @@ namespace WeddingApp.Server.Repository.GDriveRepo
         private const string AccessTokenCacheKey = "GDriveAccessToken";
         private const int MaxPageSize = 100;
         private const string SvgMimeType = "image/svg+xml";
+        private const int MaxUploadBytes = 10 * 1024 * 1024;
 
         private static readonly Regex FileIdPattern = new("^[A-Za-z0-9_-]{10,200}$", RegexOptions.Compiled);
 
@@ -181,6 +184,145 @@ namespace WeddingApp.Server.Repository.GDriveRepo
         private sealed record DriveFileList(string? NextPageToken, List<DriveFile>? Files);
 
         private sealed record DriveFile(string Id, string? Name, string? MimeType, List<string>? Parents, bool Trashed);
+
+        public async Task<GeneralResponse<GFileDTO>> UploadPhoto(byte[] content, string fileName)
+        {
+            var prepared = PreparePhoto(content, fileName);
+            if (!prepared.IsSuccess || prepared.Data is null)
+                return ResponseHelper.ErrorResponseWData<GFileDTO>(prepared.ErrorMessage, prepared.StatusCode);
+
+            var uploadBytes = prepared.Data.Content;
+            var mimeType = prepared.Data.MimeType;
+            var extension = mimeType switch
+            {
+                "image/png" => ".png",
+                "image/gif" => ".gif",
+                "image/webp" => ".webp",
+                _ => ".jpg"
+            };
+
+            try
+            {
+                var name = Path.GetFileNameWithoutExtension(fileName);
+                if (string.IsNullOrWhiteSpace(name)) name = "Wedding photo";
+                name = name[..Math.Min(name.Length, 100)] + extension;
+
+                using var multipart = new MultipartContent("related");
+                var metadata = new { name, mimeType, parents = new[] { folderId } };
+                var metadataContent = JsonContent.Create(metadata);
+                multipart.Add(metadataContent);
+                var mediaContent = new ByteArrayContent(uploadBytes);
+                mediaContent.Headers.ContentType = new MediaTypeHeaderValue(mimeType);
+                multipart.Add(mediaContent);
+
+                using var request = new HttpRequestMessage(HttpMethod.Post,
+                    "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType&supportsAllDrives=true")
+                {
+                    Content = multipart
+                };
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", await GetAccessToken());
+
+                using var response = await _http.SendAsync(request);
+                if (!response.IsSuccessStatusCode)
+                    return ResponseHelper.ErrorResponseWData<GFileDTO>("Failed to upload photo to Google Drive.", HttpStatusCode.BadGateway);
+
+                var file = await response.Content.ReadFromJsonAsync<DriveFile>();
+                if (file is null || string.IsNullOrEmpty(file.Id))
+                    return ResponseHelper.ErrorResponseWData<GFileDTO>("Google Drive did not confirm the upload.", HttpStatusCode.BadGateway);
+
+                return ResponseHelper.SuccessResponseWData(new GFileDTO
+                {
+                    Id = file.Id,
+                    Name = file.Name ?? name,
+                    MimeType = file.MimeType ?? mimeType,
+                    ImageUrl = $"/api/GDrive/photo/{Uri.EscapeDataString(file.Id)}"
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return ResponseHelper.ErrorResponseWData<GFileDTO>("Failed to upload photo.", HttpStatusCode.InternalServerError);
+            }
+        }
+
+        public GeneralResponse<GFileContentDTO> PreviewPhoto(byte[] content, string fileName) => PreparePhoto(content, fileName);
+
+        private static GeneralResponse<GFileContentDTO> PreparePhoto(byte[] content, string fileName)
+        {
+            if (content.Length == 0 || content.Length > MaxUploadBytes)
+                return ResponseHelper.ErrorResponseWData<GFileContentDTO>("Photo must be between 1 byte and 10 MB.", HttpStatusCode.BadRequest);
+
+            var sourceExtension = Path.GetExtension(fileName).ToLowerInvariant();
+            if (sourceExtension is not (".jpg" or ".jpeg" or ".png" or ".gif" or ".webp" or ".heic" or ".heif" or ".avif" or ".tif" or ".tiff" or ".bmp"))
+                return ResponseHelper.ErrorResponseWData<GFileContentDTO>("Unsupported photo format.", HttpStatusCode.BadRequest);
+
+            var bytes = content.AsSpan();
+            var isRaster = bytes.StartsWith(new byte[] { 0xff, 0xd8, 0xff })
+                || bytes.StartsWith(new byte[] { 0x89, 0x50, 0x4e, 0x47 })
+                || bytes.StartsWith("GIF8"u8)
+                || (bytes.StartsWith("RIFF"u8) && bytes.Length >= 12 && bytes.Slice(8, 4).SequenceEqual("WEBP"u8))
+                || bytes.StartsWith("BM"u8)
+                || bytes.StartsWith(new byte[] { 0x49, 0x49, 0x2a, 0x00 })
+                || bytes.StartsWith(new byte[] { 0x4d, 0x4d, 0x00, 0x2a })
+                || (bytes.Length >= 12 && bytes.Slice(4, 4).SequenceEqual("ftyp"u8)
+                    && (bytes.Slice(8, 4).SequenceEqual("heic"u8) || bytes.Slice(8, 4).SequenceEqual("heix"u8)
+                        || bytes.Slice(8, 4).SequenceEqual("hevc"u8) || bytes.Slice(8, 4).SequenceEqual("mif1"u8)
+                        || bytes.Slice(8, 4).SequenceEqual("avif"u8)));
+            if (!isRaster)
+                return ResponseHelper.ErrorResponseWData<GFileContentDTO>("Unsupported photo format.", HttpStatusCode.BadRequest);
+
+            byte[] uploadBytes;
+            string mimeType;
+
+            try
+            {
+                var info = new MagickImageInfo(content);
+                if ((long)info.Width * info.Height > 40_000_000)
+                    return ResponseHelper.ErrorResponseWData<GFileContentDTO>("Photo dimensions are too large.", HttpStatusCode.BadRequest);
+
+                using var image = new MagickImage(content);
+                if (image.Format is not (MagickFormat.Jpeg or MagickFormat.Png or MagickFormat.Gif or MagickFormat.WebP
+                    or MagickFormat.Heic or MagickFormat.Avif or MagickFormat.Tiff
+                    or MagickFormat.Bmp or MagickFormat.Bmp2 or MagickFormat.Bmp3))
+                    return ResponseHelper.ErrorResponseWData<GFileContentDTO>("Unsupported photo format.", HttpStatusCode.BadRequest);
+
+                switch (image.Format)
+                {
+                    case MagickFormat.Jpeg:
+                        mimeType = "image/jpeg";
+                        uploadBytes = content;
+                        break;
+                    case MagickFormat.Png:
+                        mimeType = "image/png";
+                        uploadBytes = content;
+                        break;
+                    case MagickFormat.Gif:
+                        mimeType = "image/gif";
+                        uploadBytes = content;
+                        break;
+                    case MagickFormat.WebP:
+                        mimeType = "image/webp";
+                        uploadBytes = content;
+                        break;
+                    default:
+                        image.AutoOrient();
+                        image.BackgroundColor = MagickColors.White;
+                        image.Alpha(AlphaOption.Remove);
+                        image.Strip();
+                        image.Format = MagickFormat.Jpeg;
+                        image.Quality = 85;
+                        uploadBytes = image.ToByteArray();
+                        mimeType = "image/jpeg";
+                        break;
+                }
+
+                return ResponseHelper.SuccessResponseWData(new GFileContentDTO { Content = uploadBytes, MimeType = mimeType });
+            }
+            catch (MagickException)
+            {
+                return ResponseHelper.ErrorResponseWData<GFileContentDTO>("Unsupported or invalid photo.", HttpStatusCode.BadRequest);
+            }
+        }
 
         public async Task<GeneralResponse<List<GDriveDTO>>> GetAllDrives()
         {
